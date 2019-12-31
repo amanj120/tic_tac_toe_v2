@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link href="https://fonts.googleapis.com/css?family=Anonymous+Pro&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap" rel="stylesheet">
 	</head>
 	<style>
 		#common{
+			color: white;
+			font-weight: normal;
+			font-family: 'Ubuntu Mono', monospace;
+			font-size: 24pt;
+		}
+		.bttn{
 			text-align: center;
 			color: white;
 			font-weight: normal;
-			font-family: 'Anonymous Pro', monospace;
+			font-family: 'Ubuntu Mono', monospace;
 			font-size: 24pt;
+			border:none;
+			background-color: #000000;
+		}
+		.bttn a:hover,focus{
+			font-weight: bold;
+			outline:none !important;
 		}
 		h1{
-			white-space: pre-line;
+			white-space: pre;
 		}
 		input{
+			text-align: center;
 			border:none;
 			background-color: #000000;
 		}
@@ -22,14 +35,19 @@
 			outline:none !important;
 		}
 	</style>
-	
+
 	<body bgcolor="#000000">
+		<div class="bttn">
+			<a style="text-decoration: none;color: #FFFFFF;"  href="https://www.xkcd.com">Rules</a>		
+		</div>
 		<br>
-		<h1 id="common">{{input}}</h1>
+		<div align="center">
+			<h1 align="center" id="common" align="left">{{input}}</h1>
+		</div>
 		<br>
-		<h1 id="common">Select a move</h1>
+		<h1 id="common" align="center">Select a move</h1>
 		<form align="center" action="{{ url_for('fib') }}" method="post">
-			<input id="common" type="text" name="move" pattern="[A-Ia-i][0-8]\b"  value="0")><br>
+			<input id="common" type="text" name="move" pattern="[A-Ia-i][0-8]\b" value="0")><br>
 		</form>
 	</body>
 </html>
