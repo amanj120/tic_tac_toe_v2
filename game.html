@@ -1,9 +1,35 @@
 <!DOCTYPE html>
 <html>
-<body>
-
-<h1>My First Heading</h1>
-<p>My first paragraph.</p>
-
-</body>
+	<head>
+		<link href="https://fonts.googleapis.com/css?family=Anonymous+Pro&display=swap" rel="stylesheet">
+	</head>
+	<style>
+		#common{
+			text-align: center;
+			color: white;
+			font-weight: normal;
+			font-family: 'Anonymous Pro', monospace;
+			font-size: 24pt;
+		}
+		h1{
+			white-space: pre-line;
+		}
+		input{
+			border:none;
+			background-color: #000000;
+		}
+		input:focus{
+			outline:none !important;
+		}
+	</style>
+	
+	<body bgcolor="#000000">
+		<br>
+		<h1 id="common">{{input}}</h1>
+		<br>
+		<h1 id="common">Select a move</h1>
+		<form align="center" action="{{ url_for('fib') }}" method="post">
+			<input id="common" type="text" name="move" pattern="[A-Ia-i][0-8]\b"  value="0")><br>
+		</form>
+	</body>
 </html>

@@ -8,11 +8,3 @@ int fib(int n){
 	}
 	return a;
 }
-
-/*
-import os
-from ctypes import *
-so = os.path.abspath("fib.so")
-func = CDLL(so)
-print(func.fib(1))
-*/

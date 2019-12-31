@@ -38,12 +38,6 @@ static const int size_of_data = (30*sizeof(short));
 
 static int num_times;
 
-void printData(short d[3][10]);
-void register_move(short data[3][10], int p, int move);
-int select_rand_move(short d[3][10]);
-void seed();
-long printTimeForSingleRandomTrial(bool print);
-void further_testing();
 // all data will be passed via a multidimensional short array: data[3][10]
 // p0 9x9 board, p0 bigger 3x3 board
 // p1 9x9 board, p1 bigger 3x3 board
