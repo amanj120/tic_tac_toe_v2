@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Ultimate Tic Tac Toe</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style.css') }}">
+		<link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+	</head>
+	<body>
+		<div class="common">
+			<a href="/rule" style="text-decoration: none;color: #FFFFFF;">Rules</a>		
+			<br>
+			<h1 class="common">{{input}}</h1>
+			<form action="{{ url_for('turn') }}" method="post">
+				Select a Move:<input class="common" type="text" name="move" pattern="[A-Ia-i][0-8]\b" size=2 value="")><br>
+				<input class="hidden" type="text" name="passed" value={{data}}>
+				<input class="common" type="submit">
+			</form>
+		</div>
+	</body>
+</html>

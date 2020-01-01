@@ -161,7 +161,7 @@ static int l1(short data[3][10], int move){
 	return min(r, count);
 }
 
-void setValid(short dd[3][10]){
+static void setValid(short dd[3][10]){
 	int lastMove = (dd[2][9]&0xFF);
 	int lastBoard = lastMove/9;
 	int lastSquare = lastMove%9;
@@ -189,6 +189,10 @@ void setValid(short dd[3][10]){
 	return;
 }
 
+int check_valid(short d[3][10], int move){
+	return (d[2][move/9] & (1<<(move%9)));
+}
+
 void set_metadata(short d[3][10], int cpu_p_no, int cpu_x){
 	int n = d[2][9];
 	n = n & 0x0FFF;
@@ -205,6 +209,7 @@ void register_move(short d[3][10], int p, int move){
 		d[p][9] = (d[p][9]|1<<(move/9));
 	}
 	d[2][9] = set_last_move(move);
+	setValid(d);
 	return;
 }
 

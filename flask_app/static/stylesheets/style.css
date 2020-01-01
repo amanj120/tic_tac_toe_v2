@@ -1,0 +1,45 @@
+.common{
+	color: white;
+	font-weight: normal;
+	font-family: 'Ubuntu Mono', monospace;
+	font-size: 24pt;
+	text-align: center;
+	border:none;
+}
+.hidden{
+	display: none;
+}
+a{
+	text-decoration: none;
+	color: #FFFFFF;
+}
+a:hover,focus{
+	font-weight: bold;
+	outline:none !important;
+}
+p{
+	color: white;
+	font-weight: normal;
+	font-family: 'Ubuntu Mono', monospace;
+	font-size: 14pt;
+	text-align: left;
+	border:none;
+}
+h1{white-space: pre;}
+input{
+	background-color: inherit;
+	width: auto;
+}
+input:focus	{outline:none !important;}
+body{
+	background-color: #000000;
+	align-content: center;
+}
+td{
+	text-align: left;
+	padding-left: 10pt;
+	padding-right: 10pt;
+}
+td:hover{
+	font-weight:bold;
+}

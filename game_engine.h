@@ -33,12 +33,13 @@ static const short m[] = {0700, 070, 07, 0444, 0222, 0111, 0421, 0124};
 //{111 000 000, 000 111 000, 000 000 111, 100 100 100, 010 010 010, 001 001 001, 100 010 001, 001 010 100};
 static const int size_of_data = (30*sizeof(short));
 
-void setValid(short dd[3][10]);
 void set_metadata(short d[3][10], int cpu_p_no, int cpu_x);
 void register_move(short d[3][10], int p, int move);
 void seed();
 int cpuMove(short d[3][10]);
+int check_valid(short d[3][10], int move);
 
+static void setValid(short dd[3][10]);
 static int randomTrial(const short data[3][10], bool print);
 static int select_rand_move(short d[3][10]);
 static void clear(int ls[], int len);
