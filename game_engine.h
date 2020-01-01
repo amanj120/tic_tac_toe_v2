@@ -36,7 +36,7 @@ static const int size_of_data = (30*sizeof(short));
 void set_metadata(short d[3][10], int cpu_p_no, int cpu_x);
 void register_move(short d[3][10], int p, int move);
 void seed();
-int cpuMove(short d[3][10]);
+int cpuMove(short d[3][10], int n);
 int check_valid(short d[3][10], int move);
 
 static void setValid(short dd[3][10]);
@@ -46,6 +46,6 @@ static void clear(int ls[], int len);
 static int max(int ls[], int len);
 static int min(int ls[], int len);
 static int nrand(const short data[3][10], short p, bool ties, int n);
-static int l1(short data[3][10], int move);
-static int l2(short data[3][10], int move);
-static int l3(short data[3][10], int move);
+static int l1(short data[3][10], int move, int n);
+static int l2(short data[3][10], int move, int n);
+static int l3(short data[3][10], int move, int n);

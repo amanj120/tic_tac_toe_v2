@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 data = (c_short*10)*3 	#this is a type, all instances of data will be of this type
 base = c_char*430		#the type of the board string
+num_trials = 100;
 
 def data_to_str(d):
 	s = ""
@@ -45,12 +46,12 @@ def register_usr_move(d, m):
 	func.register_move(byref(d),usr_no,m)
 
 def register_cpu_move(d):
-	m = cpu_move(d)
+	m = cpu_move(d, num_trials)
 	cpu_no = ((d[2][9] & 0x8000) >> 15)
 	func.register_move(byref(d), cpu_no, m)
 
-def cpu_move(d):
-	return func.cpuMove(byref(d))
+def cpu_move(d, n):
+	return func.cpuMove(byref(d), n)
 
 def initialize(d):
 	cpu_no = ((d[2][9] & 0x8000) >> 15)

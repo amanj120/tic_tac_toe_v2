@@ -86,25 +86,17 @@ static int nrand(const short data[3][10], short p, bool ties, int n){
 	return nums[p + 1] + (ties * nums[0]);
 }
 
-static int l3(short data[3][10], int move){
-	//has the last move the user played, along with the move the spu should play, before running the random trial
-	//printf("value of d(in) in l3: %p\n", data);
-	//printf("inside l3\n");
+static int l3(short data[3][10], int move, int n){
 	short d[3][10];
 	memcpy(d,data,size_of_data);
-
-	//printf("value of d(copy) in l3: %p\n", data);
 	register_move(d, cpu_player_number, move);
-
-	//printData(d);
-	int ret = nrand(d,cpu_player_number,true,1000);//return the number of times the cpu wins
-	// printf("rand trial results: %d\n", ret);
+	int ret = nrand(d,cpu_player_number,true,n);//return the number of times the cpu wins
 	return ret;
 }
 
-static int l2(short data[3][10], int move){
+static int l2(short data[3][10], int move, int n){
 	//the board will have the last move the cpu played, along with the move the user should play
-	//printf("value of d(in) in l2: %p\n", data);
+	//printf("value of d(in) in l2: %p\n", , int ndata);
 	short d[3][10];
 	memcpy(d,data,size_of_data);
 	register_move(d, !cpu_player_number, move);
@@ -119,7 +111,7 @@ static int l2(short data[3][10], int move){
 		for(int j = 0; j < 9; j++){
 			if(a & 1<<j){
 				int idx = i*9 + j;
-				l3s[idx] = l3(d, idx);
+				l3s[idx] = l3(d, idx, n);
 			}
 		}
 	}
@@ -127,7 +119,7 @@ static int l2(short data[3][10], int move){
 	return max(l3s, 81);
 }
 
-static int l1(short data[3][10], int move){
+static int l1(short data[3][10], int move, int n){
 	//the board will have the last move the user played, along with the move the cpu should play
 	// printf("value of d(in) in l1: %p\n", data);
 	short d[3][10];
@@ -153,7 +145,7 @@ static int l1(short data[3][10], int move){
 	//#pragma omp parallel for
 	for(int i = 0; i < count; i++){
 		int idx = valids[i];
-		int res = l2(d, idx);
+		int res = l2(d, idx, n);
 		r[i] = res;
 	}
 
@@ -213,7 +205,7 @@ void register_move(short d[3][10], int p, int move){
 	return;
 }
 
-int cpuMove(short d[3][10]){ //same as l0
+int cpuMove(short d[3][10], int n){ //same as l0
 	//input: a board with the last move the user played
 	//note: user will be (!cpu_player_number)
 	//printf("value of d inside cpuMove: %p\n", d);
@@ -246,7 +238,7 @@ int cpuMove(short d[3][10]){ //same as l0
 	    // memcpy(dcopy, d, size_of_data);
 		//printf("value of d %p in thread %d\n", d, omp_get_thread_num());
 		printf("value of d %p in cpuMove\n", d);
-		r[i] = l1(d, valids[i]);
+		r[i] = l1(d, valids[i], n);
 		//doing: c = l1(...) doesn't cause any speedup, so the issue isn't in there
 		//printf("value of c: %d in thread %d\n", c, omp_get_thread_num());
 	    //gettimeofday(&t1, 0);
