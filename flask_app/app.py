@@ -9,7 +9,7 @@ app = Flask(__name__, template_folder=frontend, static_folder=frontend)
 
 data = (c_short*10)*3 	#this is a type, all instances of data will be of this type
 base = c_char*430 	#the type of the returned string
-num_trials = 100;
+num_trials = 500;
 
 def data_to_str(d):
 	s = ""

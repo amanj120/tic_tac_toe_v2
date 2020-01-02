@@ -1,4 +1,11 @@
 #include "game_engine.h"
+#include <stdio.h>
+
+static void printData(short d[3][10]){
+	char c[430];
+	to_string(d,c);
+	printf("%s\n", c);
+}
 
 static int min(int ls[], int len){
 	int min = 0x0FFF;
@@ -79,6 +86,9 @@ static int nrand(const short data[3][10], short p, bool ties, int n){
 	//printData(data);
 	int ret = 0;
 	int nums[3];
+	nums[0] = 0;
+	nums[1] = 0;
+	nums[2] = 0;
 	for(int i = 0; i < n; i++){
 		int val = random_trial(data, false) + 1;
 		nums[val]++;
@@ -91,6 +101,7 @@ static int l3(short data[3][10], int move, int n){
 	memcpy(d,data,size_of_data);
 	register_move(d, cpu_player_number, move);
 	int ret = nrand(d,cpu_player_number,true,n);//return the number of times the cpu wins
+	printf("in l3, nrand gave us %d when running %d trials\n", ret, n);
 	return ret;
 }
 
@@ -127,7 +138,6 @@ static int l1(short data[3][10], int move, int n){
 	register_move(d, cpu_player_number, move);
 	//printf("value of d(copy) in l1: %p\n", d);
 	setValid(d);
-	//printData(d);.
 	// int min = 100000;
 	int valids[81];
 	int count = 0;
@@ -146,6 +156,7 @@ static int l1(short data[3][10], int move, int n){
 	for(int i = 0; i < count; i++){
 		int idx = valids[i];
 		int res = l2(d, idx, n);
+		printf("move: %d in l2 gave us a value of %d\n", idx, res);
 		r[i] = res;
 	}
 
@@ -233,38 +244,19 @@ int cpu_move(short d[3][10], int n){ //same as l0
 			} 
 		}
 	}
-	int r[count];
-
+	//int r[count];
+	int max = 0;
+	int move;
 	//#pragma omp parallel for default(none) shared(d, count, valids, r)
 	for(int i = 0; i < count; i++){
-		//long elapsed = 0;
-	 //    struct timeval t0, t1;
-	 //    gettimeofd		//long elapsed = 0;
-	 //    struct timeval t0, t1;
-	 //    gettimeofday(&t0, 0);
-	    // short dcopy[3][10];
-	    // memcpy(dcopy, d, size_of_data);ay(&t0, 0);
-	    // short dcopy[3][10];
-	    // memcpy(dcopy, d, size_of_data);
-		//printf("value of d %p in thread %d\n", d, omp_get_thread_num());
-		//printf("value of d %p in cpuMove\n", d);
-		r[i] = l1(d, valids[i], n);
-		//doing: c = l1(...) doesn't cause any speedup, so the issue isn't in there
-		//printf("value of c: %d in thread %d\n", c, omp_get_thread_num());
-	    //gettimeofday(&t1, 0);
-	    // elapsed = ((t1.tv_usec - t0.tv_usec)/1000) + ((t1.tv_sec - t0.tv_sec)*1000);
-		//printf("checking move %d with thread %d took %ld ms\n", valids[i], omp_get_thread_num(), elapsed);
-		 
-	}
-	//at this point l1s contains the minimax value 
-	//for every single possible move that the 
-	//cpu could make, so we want the maximum of those values
-	int target = max(r, count);
-	for(int i = 0; i < count; i++){
-		if(r[i] == target){
-			return valids[i];
+		int v = l1(d, valids[i], n);
+		printf("move: %d gave us a value of %d\n", valids[i], v);
+		if(v > max){
+			move = valids[i];
+			max = v;
 		}
 	}
+	return move;
 }
 
 void seed(){ //can be called multiple times
@@ -329,6 +321,23 @@ void to_string(short d[3][10], char out[]){
 			}
 		}
 	}
+}
+
+int main(){
+	seed();
+	short data[3][10];
+	for(int i = 0; i < 3; i++)
+		for(int j = 0; j < 10; j++)
+			data[i][j] = 0;
+	printData(data);
+
+	set_metadata(data, 0, 1);//cpu plays first, as X
+	register_move(data, 0, 40);//cpu's first move is in the center
+	printData(data);
+	register_move(data, 1, 39);//cpu's first move is in the center
+	printData(data);
+	int m = cpu_move(data,100);
+	printf("cpu_move chose: %d\n", m);
 }
 
 /*
