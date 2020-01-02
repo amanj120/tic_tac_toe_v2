@@ -41,7 +41,7 @@ static int select_rand_move(short d[3][10]){
 	return move;
 }
 
-static int randomTrial(const short data[3][10], bool print){
+static int random_trial(const short data[3][10], bool print){
 	//printf("inside random trial\n");
 	short d[3][10];
 	memcpy(d, data, size_of_data);
@@ -80,7 +80,7 @@ static int nrand(const short data[3][10], short p, bool ties, int n){
 	int ret = 0;
 	int nums[3];
 	for(int i = 0; i < n; i++){
-		int val = randomTrial(data, false) + 1;
+		int val = random_trial(data, false) + 1;
 		nums[val]++;
 	}
 	return nums[p + 1] + (ties * nums[0]);
@@ -125,7 +125,7 @@ static int l1(short data[3][10], int move, int n){
 	short d[3][10];
 	memcpy(d,data,size_of_data);
 	register_move(d, cpu_player_number, move);
-	printf("value of d(copy) in l1: %p\n", d);
+	//printf("value of d(copy) in l1: %p\n", d);
 	setValid(d);
 	//printData(d);.
 	// int min = 100000;
@@ -181,6 +181,16 @@ static void setValid(short dd[3][10]){
 	return;
 }
 
+int game_over(short d[3][10]){
+	if(c3x3(d[0][9])){
+		return 0;
+	} else if (c3x3(d[1][9])){
+		return 1;
+	} else {
+		return -1;
+	}
+}
+
 int check_valid(short d[3][10], int move){
 	return (d[2][move/9] & (1<<(move%9)));
 }
@@ -205,7 +215,7 @@ void register_move(short d[3][10], int p, int move){
 	return;
 }
 
-int cpuMove(short d[3][10], int n){ //same as l0
+int cpu_move(short d[3][10], int n){ //same as l0
 	//input: a board with the last move the user played
 	//note: user will be (!cpu_player_number)
 	//printf("value of d inside cpuMove: %p\n", d);
@@ -225,7 +235,7 @@ int cpuMove(short d[3][10], int n){ //same as l0
 	}
 	int r[count];
 
-	#pragma omp parallel for default(none) shared(d, count, valids, r)
+	//#pragma omp parallel for default(none) shared(d, count, valids, r)
 	for(int i = 0; i < count; i++){
 		//long elapsed = 0;
 	 //    struct timeval t0, t1;
@@ -237,7 +247,7 @@ int cpuMove(short d[3][10], int n){ //same as l0
 	    // short dcopy[3][10];
 	    // memcpy(dcopy, d, size_of_data);
 		//printf("value of d %p in thread %d\n", d, omp_get_thread_num());
-		printf("value of d %p in cpuMove\n", d);
+		//printf("value of d %p in cpuMove\n", d);
 		r[i] = l1(d, valids[i], n);
 		//doing: c = l1(...) doesn't cause any speedup, so the issue isn't in there
 		//printf("value of c: %d in thread %d\n", c, omp_get_thread_num());
@@ -264,6 +274,64 @@ void seed(){ //can be called multiple times
 	srand(seed);
 }
 
+void to_string(short d[3][10], char out[]){
+	strcpy(out, board);
+	for(int i = 0; i < 9; i++){
+		for(int j = 0; j < 9; j++){
+			int p = i*9 + j;
+			int pos = board_pos[p];
+			if(cpu_is_X && cpu_player_number==0){
+				if(d[0][i] & 1<<j){
+					out[pos] = '>';
+					out[pos+1] = '<';
+				} else if (d[1][i] & 1<<j){
+					out[pos] = '<';
+					out[pos+1] = '>';
+				} else if (!(d[2][i] & 1<<j)){
+					out[pos] = ' ';
+					out[pos+1] = ' ';
+				} else {
+					continue;
+				}
+			} else {
+				if(d[0][i] & 1<<j){
+					out[pos] = '<';
+					out[pos+1] = '>';
+				} else if (d[1][i] & 1<<j){
+					out[pos] = '>';
+					out[pos+1] = '<';
+				} else if (!(d[2][i] & 1<<j)){
+					out[pos] = ' ';
+					out[pos+1] = ' ';
+				} else {
+					continue;
+				}
+			}
+		}
+	}
+	for(int j = 0; j < 9; j++){
+		int pos = board_pos[81 + j];
+		if(cpu_is_X && cpu_player_number==0){
+			if(d[0][9] & 1<<j){
+				out[pos] = 'X';
+			} else if (d[1][9] & 1<<j){
+				out[pos] = 'O';
+			} else {
+				continue;
+			}
+		} else {
+			if(d[0][9] & 1<<j){
+				out[pos] = 'O';
+			} else if (d[1][9] & 1<<j){
+				out[pos] = 'X';
+			} else {
+				continue;
+			}
+		}
+	}
+}
+
+/*
 static void further_testing(){
 	long times[1000];
 	long total = 0;
@@ -287,7 +355,7 @@ static long printTimeForSingleRandomTrial(bool print){
     struct timeval t0, t1;
     gettimeofday(&t0, 0);
     for(int i = 0; i < 4000; i++)
-	    randomTrial(data, false);
+	    random_trial(data, false);
     gettimeofday(&t1, 0);
     elapsed = ((t1.tv_usec - t0.tv_usec)/1000) + ((t1.tv_sec - t0.tv_sec)*1000);
     if(print)
@@ -295,3 +363,4 @@ static long printTimeForSingleRandomTrial(bool print){
     // between 90-110 ms
     return elapsed;
 }
+*/

@@ -1,7 +1,7 @@
 .common{
 	color: white;
 	font-weight: normal;
-	font-family: 'Ubuntu Mono', monospace;
+	font-family: 'Major Mono Display', monospace;
 	font-size: 24pt;
 	text-align: center;
 	border:none;
@@ -20,7 +20,7 @@ a:hover,focus{
 p{
 	color: white;
 	font-weight: normal;
-	font-family: 'Ubuntu Mono', monospace;
+	font-family: 'Major Mono Display', monospace;
 	font-size: 14pt;
 	text-align: left;
 	border:none;

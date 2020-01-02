@@ -1,22 +1,20 @@
-from flask import Flask
-from flask import render_template, request
-import os
+from flask import Flask, render_template, request
 from ctypes import *
+from os import path
 
-so = os.path.abspath("tic.so")
+so = path.abspath("tic.so")
+frontend = path.abspath("frontend")
 func = CDLL(so)
-app = Flask(__name__)
+app = Flask(__name__, template_folder=frontend, static_folder=frontend)
 
 data = (c_short*10)*3 	#this is a type, all instances of data will be of this type
-base = c_char*430		#the type of the board string
+base = c_char*430 	#the type of the returned string
 num_trials = 100;
 
 def data_to_str(d):
 	s = ""
-	for i in range(3):
-		for j in range(10):
-			s += str(d[i][j])
-			s += ","
+	for i in range(30):
+		s += (str(d[i//10][i%10]) + ",")
 	return s[:-1]
 
 def str_to_data(s):
@@ -27,107 +25,96 @@ def str_to_data(s):
 	return d;
 
 def to_string(d):
-	b = base()
+	b = base() 
 	func.to_string(byref(d),byref(b))
-	s = b.value.decode('ascii')
-	return s
+	return b.value.decode('ascii')
 
-def set_metadata(d, cpu_p_no=0, cpu_is_x=0):
-	func.set_metadata(byref(d),cpu_p_no,cpu_is_x)
+def cpu_no(d):
+	return ((d[2][9] & 0x8000) >> 15)
 
-def check_valid(d, move):
-	return func.check_valid(d,move)
+def set_metadata(d, p, x):
+	#p = cpu player number, x = cpu is x
+	func.set_metadata(byref(d),p,x)
 
-def seed():
-	func.seed()
+def check_valid(d, m):
+	return func.check_valid(d,m)
 
 def register_usr_move(d, m):
-	usr_no = (1 - ((d[2][9] & 0x8000) >> 15))
+	usr_no = (1 - cpu_no(d))
 	func.register_move(byref(d),usr_no,m)
 
 def register_cpu_move(d):
-	m = cpu_move(d, num_trials)
-	cpu_no = ((d[2][9] & 0x8000) >> 15)
-	func.register_move(byref(d), cpu_no, m)
-
-def cpu_move(d, n):
-	return func.cpuMove(byref(d), n)
+	m = func.cpu_move(byref(d), num_trials)
+	func.register_move(byref(d), cpu_no(d), m)
 
 def initialize(d):
-	cpu_no = ((d[2][9] & 0x8000) >> 15)
-	if cpu_no == 0:
+	if cpu_no(d) == 0:
 		func.register_move(byref(d), 0, 40) #sets the middle square
 	else:
 		for i in range(9):
 			d[2][i] = 511 #sets everything as valid
-#needs to have the user choose the cpu player and x/o
+
+def cpu_won_game(d):
+	g = func.game_over(byref(d))
+	if g == -1:
+		return None
+	elif g == cpu_no(d):
+		return 1
+	else:
+		return 0
+
 @app.route('/')
 def home():
 	return render_template("home.html")
-	# a = data()
-	# for i in range(3):
-	# 	for j in range(10):
-	# 		a[i][j] = (i*10 + j) + 1
-	# #need to convert the array to a string, and convert it back as well
-	# return render_template("game.html", input="hello", data=data_to_str(a))
 
-'''                                       		  cpu player | cpu is X
-<a href="/metadata/2">Play as X, go first</a><br> 			1 0 -> 2
-<a href="/metadata/0">Play as X, go second</a><br> 			0 0 -> 0
-<a href="/metadata/3">Play as O, go first</a><br> 			1 1 -> 3
-<a href="/metadata/1">Play as O, go second</a><br> 			0 1 -> 1
-'''
+@app.route('/rule')
+def rules():
+	return render_template("rules.html")
 
-@app.route('/metadata/<input>', methods=['GET'])
+@app.route('/init/<input>', methods=['GET'])
 def metadata(input):
+	func.seed() #seeds the rng
 	i = int(input)
-	p = i//2
-	x = i%2
 	d = data()
-	set_metadata(d,p,x) 
+	set_metadata(d,(i//2),(i%2)) 
 	initialize(d)
 	board = to_string(d)
-	return render_template("game.html", input=board, data=data_to_str(d))
-	# return "option selected was {}".format(str(opt))
+	if(((d[2][9] & 0x8000) >> 15) == 0):
+		return render_template("game.html", last="CPU Played E4", input=board, data=data_to_str(d))
+	else:
+		return render_template("game.html", last="It is your turn to play", input=board, data=data_to_str(d))
 
 @app.route('/turn', methods=['POST'])
 def turn():
 	g = request.form['move']
 	o = request.form['passed']
-	m = (((ord(g[0])&95)-65)*9)+(int(g[1]))
+	print("data passed in {} {}".format(g, o))
 	d = str_to_data(o)
-	if check_valid(d, m):
-		register_usr_move(d,m)
-		register_cpu_move(d)
+	last_string = "That is not a valid move"
+	if(len(g) == 2):
+		m = (((ord(g[0])&95)-65)*9)+(int(g[1]))
+		if check_valid(d, m):
+			usr_no = 1 -cpu_no(d)
+			register_usr_move(d,m)
+			over = cpu_won_game(d)
+			if over == 0:
+				for i in range(9):
+					d[2][i] = 0
+				return render_template("end.html", board=to_string(d), input="You won the game")
+			register_cpu_move(d)
+			over = cpu_won_game(d)
+			if over == 1:
+				last_move = d[2][9]&0xFF
+				l = chr(65+(last_move/9)) + str(last_move%9)
+				s = "The CPU won the game by playing {}".format(l)
+				for i in range(9):
+					d[2][i] = 0
+				return render_template("end.html", board=to_string(d), input=s)
+			last_move = d[2][9]&0xFF
+			l = chr(65+(last_move/9)) + str(last_move%9)
+			last_string = "CPU played {}".format(l)
 	board = to_string(d)
-	return render_template("game.html", input=board, data=data_to_str(d))
-	'''
-	if m is a valid move then -> register the user move, register the cpu move, return the new data and board
-	otherwise, return the old data and board
-	'''
-	#return("the form input was {} and the board input was {}".format(g,o))
-
-@app.route('/rule', methods=['GET'])
-def rules():
-	return render_template("rules.html")
+	return render_template("game.html", last=last_string, input=board, data=data_to_str(d))
 
 if __name__ == 'main':
 	app.run()
-
-'''
-import os
-from ctypes import *
-so = os.path.abspath("fib.so")
-func = CDLL(so)
-print(func.fib(1))
-'''
-#gcc -shared -o libhello.so -fPIC hello.c
-
-'''
-data = (c_short*10)*3
-d = data() #will create a short array [3][10]
-board_base = c_char*430
-b = board_base()
-func.to_string(d,b)
-s = b.value.decode('ascii')
-'''

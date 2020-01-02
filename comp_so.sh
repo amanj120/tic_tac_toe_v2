@@ -1,3 +1,3 @@
-rm flask_app/tic.so
-gcc -shared -o tic.so -fPIC *.c
-mv tic.so flask_app
+FILE=flask_app/tic.so
+test -f "$FILE" && rm "$FILE"
+gcc -shared -o "$FILE" -fPIC game_engine.c
