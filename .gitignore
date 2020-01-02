@@ -1,0 +1,7 @@
+*.swp
+/flask_app/*.swp
+/flask_app/*.pyc
+*.pyc
+/testing/*.swp
+/testing/*.pyc
+
