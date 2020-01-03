@@ -10,11 +10,37 @@
 			<a href="/rule">Rules</a>	
 			<br>
 			<h2 style="font-size: 48pt;">Welcome to Ultimate Tic Tac Toe</h2>
-			<br>
-			<a href="/init/2">Play as X, go first</a><br> 	<!--2 = 0b10 = cpu p1, plays as o-->
-			<a href="/init/0">Play as X, go second</a><br>	<!--2 = 0b00 = cpu p2, plays as o-->
-			<a href="/init/3">Play as O, go first</a><br>	<!--2 = 0b11 = cpu p1, plays as x-->
-			<a href="/init/1">Play as O, go second</a><br>	<!--2 = 0b01 = cpu p2, plays as x-->
+			<form action="{{ url_for('metadata') }}" class="common" method="post">
+				<h1 style="font-size: 36pt;">Choose your difficulty</h1>
+				<table>
+					<tr>
+						<td>
+							<input type="radio" name="difficulty" id="radio1" value=0 checked="checked"> 
+							<label for="radio1">Easy </label>
+						</td>
+						<td><p style="color:rgba(0,0,0,0)">----</p></td>
+						<td>
+							<input type="radio" name="difficulty" id="radio2" value=1> 
+							<label for="radio2">Medium </label>
+						</td>
+						<td><p style="color:rgba(0,0,0,0)">----</p></td>
+						<td>
+							<input type="radio" name="difficulty" id="radio3" value=2> 
+							<label for="radio3">Hard </label>
+						</td>
+						<td><p style="color:rgba(0,0,0,0)">----</p></td>
+						<td>
+							<input type="radio" name="difficulty" id="radio4" value=3> 
+							<label for="radio4">Expert </label>
+						</td>
+					</tr>
+				</table>
+				<br>
+				<input type="submit" class="common" name="player" value="Play as X, go first"><br>
+				<input type="submit" class="common" name="player" value="Play as X, go second"><br>
+				<input type="submit" class="common" name="player" value="Play as O, go first"><br>
+				<input type="submit" class="common" name="player" value="Play as O, go second"><br>
+			</form>
 		</div>
 	</body>
 </html>

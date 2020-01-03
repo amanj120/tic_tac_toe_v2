@@ -33,10 +33,6 @@ def to_string(d):
 def cpu_no(d):
 	return ((d[2][9] & 0x8000) >> 15)
 
-def set_metadata(d, p, x):
-	#p = cpu player number, x = cpu is x
-	func.set_metadata(byref(d),p,x)
-
 def check_valid(d, m):
 	return func.check_valid(d,m)
 
@@ -74,12 +70,20 @@ def home():
 def rules():
 	return render_template("rules.html")
 
-@app.route('/init/<input>', methods=['GET'])
-def metadata(input):
+@app.route('/init', methods=['POST'])
+def metadata():
 	func.seed() #seeds the rng
-	i = int(input)
 	d = data()
-	set_metadata(d,(i//2),(i%2)) 
+	diff = request.form['difficulty']
+	play = request.form['player']
+	p = 0
+	x = 0
+	if(play[8] == 'O'):
+		x = 1
+	if(play[14] == 'f'):
+		p = 1
+	print('{}, {}, {}'.format(p,x,diff))
+	func.set_metadata(byref(d),p,x,int(diff)) 
 	initialize(d)
 	board = to_string(d)
 	if(((d[2][9] & 0x8000) >> 15) == 0):
