@@ -1,32 +1,15 @@
 #include "game_engine.h"
 #include <stdio.h>
 
-static void printData(short d[3][10]){
-	char c[430];
-	to_string(d,c);
-	printf("%s\n", c);
-}
-
-static int min(int ls[], int len){
-	int min = 0x0FFF;
-	for(int i = 0; i < len; i++)
-		if(ls[i] < min)
-			min = ls[i];
-	return min;
-}
-
-static int max(int ls[], int len){
-	int max = 0;
-	for(int i = 0; i < len; i++)
-		if(ls[i] > max)
-			max = ls[i];
-	return max;
-}
-
-static void clear(int ls[], int len){
-	for(int i = 0; i < len; i++)
-		ls[i] = 0;
-}
+#define debug //does nothing, but easy to do a CTRL+F to find everything that needs to be commented out
+#define min_num_for_trials (150)
+#define counting_ties (1)
+// static void printData(short d[3][10]){
+// 	char c[430];
+// 	to_string(d,c);
+// 	printf("%s\n", c);
+// 	return;
+// }
 
 static int select_rand_move(short d[3][10]){
 	setValid(d);
@@ -48,17 +31,13 @@ static int select_rand_move(short d[3][10]){
 	return move;
 }
 
-static int random_trial(const short data[3][10], bool print){
-	//printf("inside random trial\n");
+static int random_trial(const short data[3][10]){
 	short d[3][10];
 	memcpy(d, data, size_of_data);
 	int lastMove = last_move;
 	short p = (d[1][lastMove/9] & 1<<(lastMove%9));
-	while(1){
-		if(print){
-			//printData(d);
-			continue;
-		}
+	while(1){			
+		// //debug printData(d);
 		if(c3x3(d[0][9])){
 			return 0;
 		} else if(c3x3(d[1][9])){
@@ -81,87 +60,17 @@ returns how many times player p wins
 p is either 1 or 0
 if ties == true, then returns how many times p wins or the game is a tie
 */
-static int nrand(const short data[3][10], short p, bool ties, int n){
-	//printf("inside nrand\n");
-	//printData(data);
-	int ret = 0;
-	int nums[3];
+static long nrand(const short data[3][10], short p, long n){
+	long ret = 0;
+	long nums[3];
 	nums[0] = 0;
 	nums[1] = 0;
 	nums[2] = 0;
-	for(int i = 0; i < n; i++){
-		int val = random_trial(data, false) + 1;
+	for(long i = 0; i < n; i++){
+		int val = random_trial(data) + 1;
 		nums[val]++;
 	}
-	return nums[p + 1] + (ties * nums[0]);
-}
-
-static int l3(short data[3][10], int move, int n){
-	short d[3][10];
-	memcpy(d,data,size_of_data);
-	register_move(d, cpu_player_number, move);
-	int ret = nrand(d,cpu_player_number,true,n);//return the number of times the cpu wins
-	printf("in l3, nrand gave us %d when running %d trials\n", ret, n);
-	return ret;
-}
-
-static int l2(short data[3][10], int move, int n){
-	//the board will have the last move the cpu played, along with the move the user should play
-	//printf("value of d(in) in l2: %p\n", , int ndata);
-	short d[3][10];
-	memcpy(d,data,size_of_data);
-	register_move(d, !cpu_player_number, move);
-	//change d to include the move
-	//printf("value of d(copy) in l2: %p\n", d);
-	setValid(d);
-	//printData(d);
-	int l3s[81];
-	clear(l3s, 81);
-	for(int i = 0; i < 9; i++){
-		int a = d[2][i];
-		for(int j = 0; j < 9; j++){
-			if(a & 1<<j){
-				int idx = i*9 + j;
-				l3s[idx] = l3(d, idx, n);
-			}
-		}
-	}
-
-	return max(l3s, 81);
-}
-
-static int l1(short data[3][10], int move, int n){
-	//the board will have the last move the user played, along with the move the cpu should play
-	// printf("value of d(in) in l1: %p\n", data);
-	short d[3][10];
-	memcpy(d,data,size_of_data);
-	register_move(d, cpu_player_number, move);
-	//printf("value of d(copy) in l1: %p\n", d);
-	setValid(d);
-	// int min = 100000;
-	int valids[81];
-	int count = 0;
-	for(int i = 0; i < 9; i++){
-		int a = d[2][i];
-		for(int j = 0; j < 9; j++){
-			if(a & 1<<j){
-				int idx = i*9 + j;
-				valids[count] = idx;
-				count++;
-			}
-		}
-	}
-	int r[count];
-	//#pragma omp parallel for
-	for(int i = 0; i < count; i++){
-		int idx = valids[i];
-		int res = l2(d, idx, n);
-		printf("move: %d in l2 gave us a value of %d\n", idx, res);
-		r[i] = res;
-	}
-
-	//l2s has the ones the user chose, so we want to minimize this number
-	return min(r, count);
+	return nums[p + 1] + (counting_ties * nums[0]);
 }
 
 static void setValid(short dd[3][10]){
@@ -174,10 +83,8 @@ static void setValid(short dd[3][10]){
 	if((dd[0][9] & 1<<lastSquare) || (dd[1][9] & 1<<lastSquare)){
 		//the last move sent someone to a square that's already filled
 		for(short i = 0; i < 9; i++){
-
 			if(!((dd[0][9] & 1<<i) || (dd[1][9] & 1<<i))){
 				//the square isn't already filled
-				//printf("address being edited: %p\n", &dd[2][i]);
 				short filled = dd[1][i]|dd[0][i];
 				dd[2][i] = ~((~0777)|filled);
 			}
@@ -186,19 +93,21 @@ static void setValid(short dd[3][10]){
 		//the last move sent someone to a square that is not filled
 		short filled = dd[1][lastSquare]|dd[0][lastSquare];
 		short val = ~((~0777)|filled);
-		//printf("address being edited: %p\n", &dd[2][lastSquare]);
 		dd[2][lastSquare] = val;
 	}
 	return;
 }
 
 int game_over(short d[3][10]){
-	if(c3x3(d[0][9])){
+	if(c3x3(d[0][9]))
 		return 0;
-	} else if (c3x3(d[1][9])){
+	else if (c3x3(d[1][9]))
 		return 1;
-	} else {
-		return -1;
+	else {
+		for(int i = 0; i < 9; i++)
+			if(d[2][i] & 0x1FF) //there is a valid move
+				return -1; //game was a tie
+		return 2; //game not over yet
 	}
 }
 
@@ -208,30 +117,75 @@ int check_valid(short d[3][10], int move){
 
 void set_metadata(short d[3][10], int cpu_p_no, int cpu_x){
 	int n = d[2][9];
-	n = n & 0x0FFF;
-	n = n|(cpu_p_no << 15);
-	n = n|(cpu_x << 14);
-	d[2][9] = n;
+	d[2][9] = (((n & 0x0FFF)|(cpu_p_no << 15))|(cpu_x << 14));
 	return;
 }
 
 void register_move(short d[3][10], int p, int move){
-	//this just assumes it's valid
 	d[p][move/9] = (d[p][move/9]|1<<(move%9)); //move a piece
-	if(c3x3(d[p][move/9])){ //if it completed a mini board
+	if(c3x3(d[p][move/9]))//if it completed a mini board
 		d[p][9] = (d[p][9]|1<<(move/9));
-	}
 	d[2][9] = set_last_move(move);
 	setValid(d);
 	return;
 }
 
-int cpu_move(short d[3][10], int n){ //same as l0
-	//input: a board with the last move the user played
-	//note: user will be (!cpu_player_number)
-	//printf("value of d inside cpuMove: %p\n", d);
+static double traverse_game_tree(short data[3][10], int move, int player, long n, int lev){
+	short d[3][10];
+	memcpy(d,data,size_of_data);
+	register_move(d, player, move); //note, registering a move sets valid already
+
+	int g = game_over(d);
+	if(g == cpu_player_number)
+		return 1;
+	else if(g == (1-cpu_player_number))
+		return 0;
+	else if(g == 2)
+		return counting_ties; //game was a tie, if we are counting ties then return a 1, or else a 0
+
+	int valids[81];
+	int count = 0;
+	for(int i = 0; i < 9; i++){
+		int a = d[2][i];
+		for(int j = 0; j < 9; j++)
+			if(a & 1<<j)
+				valids[count++] = i*9 + j;
+	}
+
+	if(count == 0){
+		return -1;
+	}
+
+	long next_n = (long)(n/count);
+	//EXPERIMENT WITH THIS
+	if(next_n < 150){//we have reached the end of our traversal 
+		long num_wins = nrand(d,cpu_player_number,n);//return the number of times the cpu wins
+		double ret = (double)(((double)num_wins)/n);
+		//debug printf("in the end, nrand gave us %ld when running %ld trials, with a %f percentage\n", num_wins, n, ret);
+		return ret;
+	} else if(player == cpu_player_number){
+		double ret = 0.0;
+		for(int i = 0; i < count; i++){
+			double v = traverse_game_tree(d, valids[i], !player, next_n, lev+1);
+			//debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,lev);
+			if(v > ret)
+				ret = v;
+		}
+		return ret;
+	} else {
+		double ret = 1.0;
+		for(int i = 0; i < count; i++){
+			double v = traverse_game_tree(d, valids[i], !player, next_n, lev+1);
+			//debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,lev);
+			if(v < ret)
+				ret = v;
+		}
+		return ret;
+	}
+}
+
+int cpu_move(short d[3][10], long n){ //same as l0
 	setValid(d);
-	////printData(d);
 	int valids[81];
 	int count = 0;
 	for(int i = 0; i < 9; i++){
@@ -244,13 +198,14 @@ int cpu_move(short d[3][10], int n){ //same as l0
 			} 
 		}
 	}
-	//int r[count];
-	int max = 0;
+	double max = -1;
 	int move;
-	//#pragma omp parallel for default(none) shared(d, count, valids, r)
+	long l1_nt = (long)(n/count);//num trials for each of l1
+	if(l1_nt < 1000)
+		l1_nt = 1000;
 	for(int i = 0; i < count; i++){
-		int v = l1(d, valids[i], n);
-		printf("move: %d gave us a value of %d\n", valids[i], v);
+		double v = traverse_game_tree(d, valids[i], !cpu_player_number ,l1_nt, 1);
+		//debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,0);
 		if(v > max){
 			move = valids[i];
 			max = v;
@@ -323,22 +278,23 @@ void to_string(short d[3][10], char out[]){
 	}
 }
 
-int main(){
-	seed();
-	short data[3][10];
-	for(int i = 0; i < 3; i++)
-		for(int j = 0; j < 10; j++)
-			data[i][j] = 0;
-	printData(data);
+// int main(){
+// 	seed();
+// 	short data[3][10];
+// 	for(int i = 0; i < 3; i++)
+// 		for(int j = 0; j < 10; j++)
+// 			data[i][j] = 0;
+// 	printData(data);
 
-	set_metadata(data, 0, 1);//cpu plays first, as X
-	register_move(data, 0, 40);//cpu's first move is in the center
-	printData(data);
-	register_move(data, 1, 39);//cpu's first move is in the center
-	printData(data);
-	int m = cpu_move(data,100);
-	printf("cpu_move chose: %d\n", m);
-}
+// 	set_metadata(data, 0, 1);//cpu plays first, as X
+// 	register_move(data, 0, 40);//cpu's first move is in the center
+// 	printData(data);
+// 	register_move(data, 1, 39);//cpu's first move is in the center
+// 	printData(data);
+
+// 	int m = cpu_move(data,1000000);
+// 	printf("cpu_move chose: %d\n", m);
+// }
 
 /*
 static void further_testing(){

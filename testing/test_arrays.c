@@ -3,7 +3,7 @@
 
 void abss(int f[2][4]){
 	printf("value of f: %p\n", f);
-	printf("sizeof f: %ld\n", sizeof(f));
+	// printf("sizeof f: %ld\n", sizeof(f));
 	for(int i = 0; i < 2; i++){
 		for(int j = 0; j < 4; j++){
 			if(f[i][j] < 0){
@@ -15,7 +15,7 @@ void abss(int f[2][4]){
 
 int sum(int e[2][4]){
 	printf("value of e: %p\n", e);
-	printf("sizeof e: %ld\n\n", sizeof(e));
+	// printf("sizeof e: %ld\n\n", sizeof(e));
 	abss(e);
 	int sum = 0;
 	for(int i = 0; i < 2; i++){
@@ -26,7 +26,7 @@ int sum(int e[2][4]){
 	return sum;
 }
 
-int main(){
+void test1(){
 	int d[2][4];
 	for(int i = 0; i < 2; i++){
 		for(int j = 0; j < 4; j++){
@@ -57,4 +57,18 @@ int main(){
 	}
 
 	//printf("value of d %ld\n", d);
+}
+
+int main(){
+	long l = 4000000000;
+	printf("%ld\n", l);
+	printf("%ld\n", sizeof(l));
+	double c = l/9;
+	printf("%f\n", c);
+	double d = c/67;
+	printf("%f\n", d);
+	long e = (long)(d);
+	printf("%ld\n", e);
+	long f = l/9;
+	printf("%ld\n", f);
 }

@@ -9,7 +9,7 @@ app = Flask(__name__, template_folder=frontend, static_folder=frontend)
 
 data = (c_short*10)*3 	#this is a type, all instances of data will be of this type
 base = c_char*430 	#the type of the returned string
-num_trials = 500;
+num_trials = 500000;
 
 def data_to_str(d):
 	s = ""
@@ -56,10 +56,12 @@ def initialize(d):
 
 def cpu_won_game(d):
 	g = func.game_over(byref(d))
-	if g == -1:
-		return None
+	if g == 2:
+		return 2
 	elif g == cpu_no(d):
 		return 1
+	elif g == -1:
+		return -1
 	else:
 		return 0
 
@@ -101,6 +103,10 @@ def turn():
 				for i in range(9):
 					d[2][i] = 0
 				return render_template("end.html", board=to_string(d), input="You won the game")
+			elif over == 2:
+				for i in range(9):
+					d[2][i] = 0
+				return render_template("end.html", board=to_string(d), input="The game ended in a tie")
 			register_cpu_move(d)
 			over = cpu_won_game(d)
 			if over == 1:
@@ -110,6 +116,10 @@ def turn():
 				for i in range(9):
 					d[2][i] = 0
 				return render_template("end.html", board=to_string(d), input=s)
+			elif over == 2:
+				for i in range(9):
+					d[2][i] = 0
+				return render_template("end.html", board=to_string(d), input="The game ended in a tie")
 			last_move = d[2][9]&0xFF
 			l = chr(65+(last_move/9)) + str(last_move%9)
 			last_string = "CPU played {}".format(l)

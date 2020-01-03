@@ -2,7 +2,6 @@
 <html>
 	<head>
 		<title>Ultimate Tic Tac Toe</title>
-		<link href="https://fonts.googleapis.com/css?family=Major+Mono+Display&display=swap" rel="stylesheet">
 		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:300&display=swap" rel="stylesheet">
 		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 	</head>
@@ -13,9 +12,11 @@
 			<h1 class="common">{{last}}</h1>
 			<h1 class="common">{{input}}</h1>
 			<form action="{{ url_for('turn') }}" method="post">
-				Select a Move:<input class="common" type="text" name="move" pattern="[A-Ia-i][0-8]\b" size=2) value="" autocomplete="off"><br>
+				Select a Move:<input class="common" type="text" name="move" pattern="[A-Ia-i][0-8]\b" size=2) value="" autocomplete="off" autofocus="autofocus"><br>
 				<input class="hidden" type="submit" name="passed" value={{data}}>
 			</form>
+			<br>
+			<div class="loader"> </div>
 		</div>
 	</body>
 </html>

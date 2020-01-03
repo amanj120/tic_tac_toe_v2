@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style type="text/css">
+			.loader{
+				position: relative;
+				border-radius: 50%;
+				width: 8px;
+				height: 8px;
+				background-color: white;
+				animation: move_x_b 6s ease infinite;
+			}
+			@keyframes move_x_b {
+				0% {left:20px;top:-15px;}
+				12.5% {left:35px;top:0px;}
+				25% {left:50px;top:-15px;}
+				37.5% {left:35px;top:0px;}
+				50% {left:50px;top:15px;}
+				62.5% {left:35px;top:0px;}
+				75% {left:20px;top:15px;}
+				87.5% {left:35px;top:0px;}
+				100% {left:20px;top:-15px;}
+			}
+			
+			h1{
+				color: white;
+			}
+		</style>
+	</head>
+	<body bgcolor="#000000">
+		<br>
+		<br>
+		<br>
+		<table>
+			<tr>
+				<td>
+					<h1>Hello </h1>
+				</td>
+				<td>
+					<div class="loader"></div>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
