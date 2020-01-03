@@ -8,9 +8,10 @@ func = CDLL(so)
 app = Flask(__name__, template_folder=frontend, static_folder=frontend)
 
 data = (c_short*10)*3 	#this is a type, all instances of data will be of this type
-base = c_char*430 	#the type of the returned string
-num_trials = 500000;
-
+base = c_char*361 	#the type of the returned string
+min_num_leaf = 150 #vary this between 150 and 500, increase as num_trials increases
+num_trials = 200000 #directly proportional to how well the CPU plays, and inversely proportional to the time it takes the CPU to play
+#observations: anything more than 1,600,000 ish is overkill, less than 200,000 is also not great
 def data_to_str(d):
 	s = ""
 	for i in range(30):
@@ -90,39 +91,37 @@ def metadata(input):
 def turn():
 	g = request.form['move']
 	o = request.form['passed']
-	print("data passed in {} {}".format(g, o))
 	d = str_to_data(o)
-	last_string = "That is not a valid move"
-	if(len(g) == 2):
-		m = (((ord(g[0])&95)-65)*9)+(int(g[1]))
-		if check_valid(d, m):
-			usr_no = 1 -cpu_no(d)
-			register_usr_move(d,m)
-			over = cpu_won_game(d)
-			if over == 0:
-				for i in range(9):
-					d[2][i] = 0
-				return render_template("end.html", board=to_string(d), input="You won the game")
-			elif over == 2:
-				for i in range(9):
-					d[2][i] = 0
-				return render_template("end.html", board=to_string(d), input="The game ended in a tie")
-			register_cpu_move(d)
-			over = cpu_won_game(d)
-			if over == 1:
-				last_move = d[2][9]&0xFF
-				l = chr(65+(last_move/9)) + str(last_move%9)
-				s = "The CPU won the game by playing {}".format(l)
-				for i in range(9):
-					d[2][i] = 0
-				return render_template("end.html", board=to_string(d), input=s)
-			elif over == 2:
-				for i in range(9):
-					d[2][i] = 0
-				return render_template("end.html", board=to_string(d), input="The game ended in a tie")
+	last_string = "'{}' is not a valid move".format((g[0].upper()) + g[1])
+	m = (((ord(g[0])&95)-65)*9)+(int(g[1]))
+	if check_valid(d, m):
+		usr_no = 1 -cpu_no(d)
+		register_usr_move(d,m)
+		over = cpu_won_game(d)
+		if over == 0:
+			for i in range(9):
+				d[2][i] = 0
+			return render_template("end.html", board=to_string(d), input="You won the game")
+		elif over == 2:
+			for i in range(9):
+				d[2][i] = 0
+			return render_template("end.html", board=to_string(d), input="The game ended in a tie")
+		register_cpu_move(d)
+		over = cpu_won_game(d)
+		if over == 1:
 			last_move = d[2][9]&0xFF
 			l = chr(65+(last_move/9)) + str(last_move%9)
-			last_string = "CPU played {}".format(l)
+			s = "The CPU won the game by playing {}".format(l)
+			for i in range(9):
+				d[2][i] = 0
+			return render_template("end.html", board=to_string(d), input=s)
+		elif over == 2:
+			for i in range(9):
+				d[2][i] = 0
+			return render_template("end.html", board=to_string(d), input="The game ended in a tie")
+		last_move = d[2][9]&0xFF
+		l = chr(65+(last_move/9)) + str(last_move%9)
+		last_string = "CPU played {}".format(l)
 	board = to_string(d)
 	return render_template("game.html", last=last_string, input=board, data=data_to_str(d))
 

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<!-- Just a quick little html file displayig a few animated loading icons I made. Not really used anywhere however -->
+	<head>
+		<style type="text/css">
+			.common{
+				color: white;
+				font-weight: normal;
+				font-family: 'Source Code Pro', monospace;
+				font-size: 24pt;
+				text-align: center;
+				border:none;
+			}
+			.loader{
+				display: inline-block;
+				position: relative;
+				border-radius: 50%;
+				width: 8px;
+				height: 8px;
+				background-color: white;
+			}
+			.loaderb{
+				display: inline-block;
+				position: relative;
+				border-radius: 100%;
+				border: 3px solid white;
+				border-right: 3px solid rgba(0,0,0,0);
+				/*border-bottom: 3px solid white;*/
+				width: 20px;
+				height: 20px;
+				animation: roll_square 3s linear infinite;
+			}
+			.a{animation: pulsea 1.5s ease infinite;}
+			.b{animation: pulseb 1.5s ease infinite;}
+			.c{animation: pulsec 1.5s ease infinite;}
+			.x{animation: move_x_b 4s ease infinite;}
+			@keyframes pulsea {
+				25%{transform: scale(1.67);}
+			}
+			@keyframes pulseb {
+				50%{transform: scale(1.67);}
+			}
+			@keyframes pulsec {
+				75%{transform: scale(1.67);}
+			}
+			@keyframes move_x_b {
+				0% {left:-15px;top:-15px;}
+				12.5% {left:0px;top:0px;}
+				25% {left:15px;top:-15px;}
+				37.5% {left:0px;top:0px;}
+				50% {left:15px;top:15px;}
+				62.5% {left:0px;top:0px;}
+				75% {left:-15px;top:15px;}
+				87.5% {left:0px;top:0px;}
+				100% {left:-15px;top:-15px;}
+			}
+			@keyframes roll_square {
+				0% {left:-40px;transform: rotate(0deg);}
+				12.5% {left:-20px;transform: rotate(90deg);}
+				25% {left:-0px;transform: rotate(180deg);}
+				37.5% {left:20px;transform: rotate(270deg);}
+				50% {left:40px;transform: rotate(360deg);}
+				62.5% {left:20px;transform: rotate(270deg);}
+				75% {left:0px;transform: rotate(180deg);}
+				87.5% {left:-20px;transform: rotate(90deg);}
+				100% {left:-40px;top:transform: rotate(0deg);}
+			}
+			h1{
+				color: white;
+			}
+		</style>
+	</head>
+	<body bgcolor="#000000" style="align-content: center;">
+		<div class="common">
+			<br>
+			<div class="loader x"></div>
+			<br>
+			<!-- <div class="loaderb"></div> -->
+			<div class="loader a"></div>
+			<div class="loader b"></div>
+			<div class="loader c"></div>
+			<!-- <div class="loader b"></div>
+			<div class="loader a"></div> -->
+		</div>
+	</body>
+</html>
