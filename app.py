@@ -99,7 +99,7 @@ def turn():
 	last_string = "'{}' is not a valid move".format((g[0].upper()) + g[1])
 	m = (((ord(g[0])&95)-65)*9)+(int(g[1]))
 	if check_valid(d, m):
-		usr_no = 1 -cpu_no(d)
+		usr_no = 1 - cpu_no(d)
 		register_usr_move(d,m)
 		over = cpu_won_game(d)
 		if over == 0:

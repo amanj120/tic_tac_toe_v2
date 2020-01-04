@@ -1,0 +1,58 @@
+Jan 3 16:57
+The entire app is fully functional, except for the rules page (lol). The only thing left is to optimize the performance of the monte carlo tree search. 
+In terms of the frontend, a little fine tuning will be needed to make sure the levels of difficulty are appropriate, and make the game work for mobile screens as well. A whole lot of HTML/CSS junk, i'll probably crank it out once the school year starts while watching TV or stuff like that. Not really in the mood right now.
+
+Here is why OpenMP isn't working:
+too many context switches (about 150 times more context switches in parallel than in serial) This is because of false sharing (I think what this means is that different threads have created their own arrays near by )
+
+running:
+gcc game_engine.c -o serial
+valgrind --tool=callgrind ./serial
+kcachegrind
+
+gives us a profile of how much of the time is wasted
+
+the profiling on the serial version shows us that:
+99.97% (basically all the time) is spent on random_trial
+62.58% is spent in select_rand_move
+27.65% is spent in register_move
+	11.23% of the 27.65% is spent in set_valid (40.6% of total register time)
+about a 9.74% overhead in the rest of random_trial
+(select = 2.26 * register)
+
+about 3% of total runtime is spent on calling rand() -> 0.0479
+
+speedups to these three functions should prove to be immense
+
+after the first set of updates to select_rand_move ->
+99.97 on random_trial
+52.12% on select_rand_move
+35.38% on register move-> 14.36% of which is in set_valid (40.5% of total register time)
+about a 12.47 % overhead in rest of random trial
+(select = 1.47 * register)
+
+this is a 1.28 times speedup from the previous version
+
+Yo fast masks.py kinda sick
+
+new updates to select_rand_move:
+
+99.97 on random trial
+47.23 on select_rand_move -> of which rand() takes 4% of the time -> 0.084
+36.31 on register_move -> 15.31% of which is in set_valid (0.42 of the time)
+
+total = 1.76 times speedup
+
+with recomputing a and b (maybe marginal improvement???):
+
+4.32% time is rand() -> 48.8 is select_random_move 37.94 is register 16.00% is set_valid
+
+after altering setvalid:
+49.91% is select_random_move
+4.30% is rand() ->  (8.6% of total select_random_move time) -> also a decently big upgrade
+
+36.75% is register_move
+14.69% is set_valid -> (39.9% of total register_move time)-> big upgrade
+
+overall about a 80% increase in speed
+

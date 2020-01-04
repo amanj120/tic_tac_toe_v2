@@ -4,25 +4,56 @@
 
 
 static int select_rand_move(short d[3][10]){
-	set_valid(d);
-	int count = 0;
-	int moves[81];
+	short count = 0;
+	short dt[9];
 	for(int i = 0; i < 9; i++){
-		int a = d[2][i];
-		for(int j = 0; j < 9; j++)
-			if(a & 1<<j)
-				moves[count++] = i*9 + j;//check if this works, it probably does
+		short v = d[2][i] & 0x1FF;
+		short a = (v&0x155) + ((v>>1)&0x155);// v&101010101 + (v&010101010>>1);
+		short b = (a&0x133) + ((a>>2)&0x133);// a&100110011 + (a&011001100>>2);
+		short c = (b&0x10F) + ((b>>4)&0x10F);// b&100001111 + b&011110000>>4;
+		short e = (c>>8) + (c&0xFF);//&01111111 & c>>8;
+		dt[i] = e;
+		count += e;
 	}
+
 	if(count == 0)
 		return -1;
-	return moves[rand()%count];
+
+	int m = rand()%count;
+	for(short i = 0; i < 9; i++){
+		short v = d[2][i];
+		if(v && m < dt[i]){
+			short a = (v&0x155) + ((v>>1)&0x155);
+			short b = (a&0x133) + ((a>>2)&0x133);
+			short j,t,n;
+			if(v>>8 && (m==(dt[i]-1)))
+				return (i*9) + 8 ;//if it's the leftmost bit
+
+			j = 0;//check if its in bits 0-3 or 4-7
+			t = b & 0xF;
+			n = (m>=t);
+			m -= (n*t);
+
+			j = (n*4);//check if it's in bits 0-1/4-5 or 2-3/6-7
+			t = (a>>j)&3;
+			n = (m>=t);
+			m -= (n*t);
+
+			j += (n*2);//figure out which bit its in
+			t = (v>>j) & 1;
+			return (i*9) + (j + (m>=t));
+		}
+		m -= dt[i];
+	}
 }
 
 static int random_trial(const short data[3][10]){
 	short d[3][10];
+	set_valid(d);
 	memcpy(d, data, size_of_data);
 	int lastMove = last_move;
 	short p = (d[1][lastMove/9] & 1<<(lastMove%9));
+	short m[] = {0700, 070, 07, 0444, 0222, 0111, 0421, 0124}; 
 	while(1){			
 		if(c3x3(d[0][9])){
 			return 0;
@@ -38,6 +69,35 @@ static int random_trial(const short data[3][10]){
 		}
 	}
 }
+
+static void set_valid(short dd[3][10]){
+	int lastSquare = (dd[2][9]&0xFF)%9;
+	for(short i = 0; i < 9; i++){
+		dd[2][i] = 0;
+	}
+	if((dd[0][9] & 1<<lastSquare) || (dd[1][9] & 1<<lastSquare)){
+		//the last move sent someone to a square that's already filled
+		for(short i = 0; i < 9; i++){
+			short a = (dd[0][9]|dd[1][9]);//big squares already filled
+			if((a&(1<<i)))
+				dd[2][i] = (~((~0777)|dd[1][i]|dd[0][i]));
+		}
+	} else {
+		dd[2][lastSquare] = ~((~0777)|dd[1][lastSquare]|dd[0][lastSquare]);
+	}
+	return;
+}
+
+void register_move(short d[3][10], int p, int move){
+	short m[] = {0700, 070, 07, 0444, 0222, 0111, 0421, 0124}; 
+	d[p][move/9] = (d[p][move/9]|1<<(move%9)); //move a piece
+	if(c3x3(d[p][move/9]))//if it completed a mini board
+		d[p][9] = (d[p][9]|1<<(move/9));
+	d[2][9] = set_last_move(move);
+	set_valid(d);
+	return;
+}
+
 
 /*
 conducts n random trials
@@ -55,32 +115,8 @@ static int nrand(const short data[3][10], short p, long n){
 	return nums[p + 1] + (counting_ties * nums[0]);
 }
 
-static void set_valid(short dd[3][10]){
-	int lastMove = (dd[2][9]&0xFF);
-	int lastBoard = lastMove/9;
-	int lastSquare = lastMove%9;
-	for(short i = 0; i < 9; i++){
-		dd[2][i] = 0;
-	}
-	if((dd[0][9] & 1<<lastSquare) || (dd[1][9] & 1<<lastSquare)){
-		//the last move sent someone to a square that's already filled
-		for(short i = 0; i < 9; i++){
-			if(!((dd[0][9] & 1<<i) || (dd[1][9] & 1<<i))){
-				//the square isn't already filled
-				short filled = dd[1][i]|dd[0][i];
-				dd[2][i] = ~((~0777)|filled);
-			}
-		}
-	} else {
-		//the last move sent someone to a square that is not filled
-		short filled = dd[1][lastSquare]|dd[0][lastSquare];
-		short val = ~((~0777)|filled);
-		dd[2][lastSquare] = val;
-	}
-	return;
-}
-
 int game_over(short d[3][10]){
+	short m[] = {0700, 070, 07, 0444, 0222, 0111, 0421, 0124}; 
 	if(c3x3(d[0][9]))
 		return 0;
 	else if (c3x3(d[1][9]))
@@ -100,15 +136,6 @@ int check_valid(short d[3][10], int move){
 void set_metadata(short d[3][10], int cpu_p_no, int cpu_x, int difficulty){
 	int n = d[2][9];
 	d[2][9] = ((((n & 0x0FFF)|(cpu_p_no << 15))|(cpu_x << 14))|(difficulty<<12));
-	return;
-}
-
-void register_move(short d[3][10], int p, int move){
-	d[p][move/9] = (d[p][move/9]|1<<(move%9)); //move a piece
-	if(c3x3(d[p][move/9]))//if it completed a mini board
-		d[p][9] = (d[p][9]|1<<(move/9));
-	d[2][9] = set_last_move(move);
-	set_valid(d);
 	return;
 }
 
@@ -193,10 +220,22 @@ int cpu_move(short d[3][10]){ //same as l0
 	}	
 	
 	int n = n_difficulty[cpu_difficulty];
-	int l1_nt = (int)(n/count);//num trials for each of l1
+	int l1_nt = (int)(n/count);	// print_data(data);
+
+	// int counts[81];
+	// for(int i = 0; i < 81; i++){
+	// 	counts[i] = 0;
+	// }
+	// for(int i = 0; i < 6900000; i++){
+	// 	int m = select_rand_move(data);
+	// 	counts[m]++;
+	// }
+	// for(int i = 0; i < 81; i++){
+	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
+	// };//num trials for each of l1
 	if(l1_nt < 1000)
 		l1_nt = 1000;
-	
+
 	/* //old code prior to performance tuning
 	double max = -1;
 	int move;
@@ -212,24 +251,14 @@ int cpu_move(short d[3][10]){ //same as l0
 		}
 	}
 	debug printf("move: %d gave us a value of %f in level %d with %d moves\n", move,max,0,n);
+	*/
 	double vals[count];
 	int c = cpu_player_number;
-	*/
 
 //	export OMP_NUM_THREADS=whatever
 //	this computer: 4 cores, 2 threads per core
-	#pragma omp parallel
-	{
-		int i = 0;
-		int l = omp_get_thread_num();
-		if(l < count){
-			printf("checking move %d with thread %d\n", valids[l], omp_get_thread_num());
-			vals[l] = traverse_game_tree(d, valids[l], c ,l1_nt, 2);
-		}
-		// for(int i = 0; i <= (count/4); i++){
-			
-		// }
-	}
+// 	the problem with running in parallel : about 100x more context switching (given by vmstat, ~5,000/s in serial, ~600,000/s in parallel)
+
 
 	//ideal parallelization
 	// const int num_threads = 8;
@@ -245,11 +274,14 @@ int cpu_move(short d[3][10]){ //same as l0
 	// 	}
 	// }
 
-	// normal loop
-	// for(int i = 0; i < count; i++){
-	// 	printf("checking move %d with thread %d\n", valids[i], omp_get_thread_num());
-	// 	vals[i] = traverse_game_tree(d, valids[i], c ,l1_nt, 2);
-	// }
+	//ideally parallelizing this loop just has a 10x speedup lol
+	#pragma omp parallel for
+	for(int i = 0; i < count; i++){
+		printf("Checking move %d\n", valids[i]);
+		double v = traverse_game_tree(d, valids[i], c ,l1_nt, 2);
+		vals[i] = v;
+		//printf("checking move %d with thread %d with result %f\n", valids[i], omp_get_thread_num(), v);
+	}
 
 	double max = -1;
 	int move = -1;
@@ -347,14 +379,30 @@ int main(){
 			data[i][j] = 0;
 	// print_data(data);
 
-	set_metadata(data, 0, 1,3);//cpu plays first, as X
+	set_metadata(data, 0, 1,3);//cpu plays first, as X, max difficulty
 	register_move(data, 0, 40);//cpu's first move is in the center
-	// print_data(data);
-	register_move(data, 1, 39);//cpu's first move is in the center
+	register_move(data, 1, 39);//center left
+	register_move(data, 0, 31);//center
+	register_move(data, 1, 36);//top left
+	register_move(data, 0, 4);//center
+	// register_move(data, 1, 42);//complete center square
+	// register_move(data,0,58);//send back to center square for 81 moves
+
 	// print_data(data);
 
+	// int counts[81];
+	// for(int i = 0; i < 81; i++){
+	// 	counts[i] = 0;
+	// }
+	// for(int i = 0; i < 6900000; i++){
+	// 	int m = select_rand_move(data);
+	// 	counts[m]++;
+	// }
+	// for(int i = 0; i < 81; i++){
+	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
+	// }
 	int m = cpu_move(data);
-	printf("cpu_move chose: %d\n", m);
+	printf("cpu moved: %d\n", m);
 }
 
 /*
