@@ -5,27 +5,31 @@
 		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:300&display=swap" rel="stylesheet">
 		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-		<script language="javascript" type="text/javascript">
-			$(document).ready(function() {
-				$(window).load(function() {
-			    	$('#loading').hide();
-			 	});
-			});
-		</script>
+		<script>
+            $(document).ready(function() {
+                $('#form').submit(function() {
+                    $('#progress').show();
+                    $('#form').hide();
+                });
+            });
+        </script>
 	</head>
 	<body>
 		<div class="common">
 			<a href="/">Home</a>	
 			<br>
+			
 			<h1 class="common">{{last}}</h1>
 			<h1 class="common">{{input}}</h1>
-			<form action="{{ url_for('turn') }}" method="post">
+			<form id="form" action="{{ url_for('turn') }}" method="post">
 				Select a Move:<input class="common" type="text" name="move" pattern="[A-Ia-i][0-8]\b" size=2) value="" autocomplete="off" autofocus="autofocus" required="required"><br>
 				<input class="hidden" type="submit" name="passed" value={{data}}>
 			</form>
+			<div id="progress">
+				CPU moving...
+				<br>
+				<div class="loader x"></div>
+			</div>
 		</div>
 	</body>
-	<div id="loading">
-  		<h1 class="common">Please wait, CPU is making a move</h1>
-	</div>
 </html>
