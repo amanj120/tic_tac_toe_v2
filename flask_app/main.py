@@ -66,6 +66,10 @@ def cpu_won_game(d):
 def home():
 	return render_template("home.html")
 
+@app.errorhandler(404)
+def page_not_found(e):
+	return render_template("404.html")
+
 @app.route('/rule')
 def rules():
 	return render_template("rules.html")

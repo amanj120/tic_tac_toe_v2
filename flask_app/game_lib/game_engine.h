@@ -30,7 +30,7 @@ char board[] = "A0 A1 A2 | B0 B1 B2 | C0 C1 C2\nA3 A4 A5 | B3 B4 B5 | C3 C4 C5\n
 short board_pos[] = {0,3,6,31,34,37,62,65,68,11,14,17,42,45,48,73,76,79,22,25,28,53,56,59,84,87,90,124,127,130,155,158,161,186,189,192,135,138,141,166,169,172,197,200,203,146,149,152,177,180,183,208,211,214,248,251,254,279,282,285,310,313,316,259,262,265,290,293,296,321,324,327,270,273,276,301,304,307,332,335,338,342,344,346,348,350,352,354,356,358};
 
 //arbitrarily chosen for now, fix later (every 100,000 is about 1 second on my machine)
-const int n_difficulty[] = {100000,200000,400000,600000};
+const int n_difficulty[] = {50000,100000,200000,400000}; //ideally there's more but 
 const int min_leaf_difficulty[] = {150,225,300,375};
 
 static double traverse_game_tree(short data[3][10], int move, int player, int n, int lev);

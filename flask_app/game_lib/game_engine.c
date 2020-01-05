@@ -320,7 +320,7 @@ void to_string(short d[3][10], char out[]){
 	}
 	for(int j = 0; j < 9; j++){
 		int pos = board_pos[81 + j];
-		if(cpu_is_x && cpu_player_number==0){
+		if(cpu_is_x != cpu_player_number){
 			if(d[0][9] & 1<<j){
 				out[pos] = 'X';
 			} else if (d[1][9] & 1<<j){

@@ -4,6 +4,14 @@
 		<title>Ultimate Tic Tac Toe</title>
 		<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:300&display=swap" rel="stylesheet">
 		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script language="javascript" type="text/javascript">
+			$(document).ready(function() {
+				$(window).load(function() {
+			    	$('#loading').hide();
+			 	});
+			});
+		</script>
 	</head>
 	<body>
 		<div class="common">
@@ -17,4 +25,7 @@
 			</form>
 		</div>
 	</body>
+	<div id="loading">
+  		<h1 class="common">Please wait, CPU is making a move</h1>
+	</div>
 </html>
