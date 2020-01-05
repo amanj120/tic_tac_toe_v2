@@ -2,10 +2,10 @@ from flask import Flask, render_template, request
 from ctypes import *
 from os import path
 
-so = path.abspath("tic.so")
+so = path.abspath("game_lib/tic.so")
 frontend = path.abspath("frontend")
 func = CDLL(so)
-app = Flask(__name__, template_folder=frontend, static_folder=frontend)
+app = Flask(__name__)#, template_folder=frontend, static_folder=frontend)
 
 data = (c_short*10)*3 	#this is a type, all instances of data will be of this type
 base = c_char*361 	#the type of the returned string
@@ -82,7 +82,6 @@ def metadata():
 		x = 1
 	if(play[14] == 'f'):
 		p = 1
-	print('{}, {}, {}'.format(p,x,diff))
 	func.set_metadata(byref(d),p,x,int(diff)) 
 	initialize(d)
 	board = to_string(d)
@@ -114,7 +113,7 @@ def turn():
 		over = cpu_won_game(d)
 		if over == 1:
 			last_move = d[2][9]&0xFF
-			l = chr(65+(last_move/9)) + str(last_move%9)
+			l = chr(65+(last_move//9)) + str(last_move%9)
 			s = "The CPU won the game by playing {}".format(l)
 			for i in range(9):
 				d[2][i] = 0
@@ -124,10 +123,10 @@ def turn():
 				d[2][i] = 0
 			return render_template("end.html", board=to_string(d), input="The game ended in a tie")
 		last_move = d[2][9]&0xFF
-		l = chr(65+(last_move/9)) + str(last_move%9)
+		l = chr(65+(last_move//9)) + str(last_move%9)
 		last_string = "CPU played {}".format(l)
 	board = to_string(d)
 	return render_template("game.html", last=last_string, input=board, data=data_to_str(d))
 
-if __name__ == 'main':
-	app.run()
+if __name__ == '__main__':
+	app.run(debug=True)

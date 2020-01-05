@@ -1,6 +1,6 @@
 #include "game_engine.h"
-#include <stdio.h>
-#include <omp.h>
+// #include <stdio.h>
+// #include <omp.h>
 
 
 static int select_rand_move(short d[3][10]){
@@ -79,7 +79,7 @@ static void set_valid(short dd[3][10]){
 		//the last move sent someone to a square that's already filled
 		for(short i = 0; i < 9; i++){
 			short a = (dd[0][9]|dd[1][9]);//big squares already filled
-			if((a&(1<<i)))
+			if(!(a&(1<<i)))
 				dd[2][i] = (~((~0777)|dd[1][i]|dd[0][i]));
 		}
 	} else {
@@ -220,23 +220,12 @@ int cpu_move(short d[3][10]){ //same as l0
 	}	
 	
 	int n = n_difficulty[cpu_difficulty];
-	int l1_nt = (int)(n/count);	// print_data(data);
+	int l1_nt = (int)(n/count);	
 
-	// int counts[81];
-	// for(int i = 0; i < 81; i++){
-	// 	counts[i] = 0;
-	// }
-	// for(int i = 0; i < 6900000; i++){
-	// 	int m = select_rand_move(data);
-	// 	counts[m]++;
-	// }
-	// for(int i = 0; i < 81; i++){
-	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
-	// };//num trials for each of l1
 	if(l1_nt < 1000)
 		l1_nt = 1000;
 
-	/* //old code prior to performance tuning
+	//old code prior to performance tuning
 	double max = -1;
 	int move;
 	for(int i = 0; i < count; i++){
@@ -250,30 +239,13 @@ int cpu_move(short d[3][10]){ //same as l0
 			return move;
 		}
 	}
-	debug printf("move: %d gave us a value of %f in level %d with %d moves\n", move,max,0,n);
-	*/
+	// printf("\n");
+	// debug printf("move: %d gave us a value of %f in level %d with %d moves\n", move,max,0,n);
+	
+
+	/*
 	double vals[count];
 	int c = cpu_player_number;
-
-//	export OMP_NUM_THREADS=whatever
-//	this computer: 4 cores, 2 threads per core
-// 	the problem with running in parallel : about 100x more context switching (given by vmstat, ~5,000/s in serial, ~600,000/s in parallel)
-
-
-	//ideal parallelization
-	// const int num_threads = 8;
-	// printf("%d = numthreads, %d = count, %d = max_i\n", num_threads, count, (count/num_threads));
-	// #pragma omp parallel
-	// {
-	// 	for(int i = 0; i <=(count/num_threads); i++){
-	// 		int l = (i*num_threads) + (omp_get_thread_num());
-	// 		if(l < count){
-	// 			printf("checking move %d with thread %d\n", valids[l], omp_get_thread_num());
-	// 			vals[l] = traverse_game_tree(d, valids[l], c ,l1_nt, 2);
-	// 		}
-	// 	}
-	// }
-
 	//ideally parallelizing this loop just has a 10x speedup lol
 	#pragma omp parallel for
 	for(int i = 0; i < count; i++){
@@ -292,6 +264,9 @@ int cpu_move(short d[3][10]){ //same as l0
 			move = valids[i];
 		}
 	}
+	*/
+	// 
+	// debug printf("cpu chose %d\n", move);
 	return move;
 }
 
@@ -308,7 +283,13 @@ void to_string(short d[3][10], char out[]){
 		for(int j = 0; j < 9; j++){
 			int p = i*9 + j;
 			int pos = board_pos[p];
-			if(cpu_is_x && cpu_player_number==0){
+			/* d[0] should be:
+			cpu x, cpu 0 -> X (1,0) = X
+			cpu o, cpu 0 -> O (0,0) = O
+			cpu x, cpu 1 -> O (1,1) = O
+			cpu o, cpu 1 -> X (0,1) = X
+			*/
+			if(cpu_is_x != cpu_player_number){
 				if(d[0][i] & 1<<j){
 					out[pos] = '>';
 					out[pos+1] = '<';
@@ -359,51 +340,41 @@ void to_string(short d[3][10], char out[]){
 	}
 }
 
-static void print_data(short d[3][10]){char c[b_len]; to_string(d,c);printf("%s\n", c);}
+// static void print_data(short d[3][10]){char c[b_len]; to_string(d,c);printf("%s\n", c);}
 
-int main(){
-	seed();
+// int main(){
+// 	seed();
 
-	// #pragma omp parallel
-	// {
-	// 	#pragma omp single
-	// 	for(int i = 0; i < 10; i++)
-	// 	{
-	// 		printf("hello from thread %d\n", omp_get_thread_num());
-	// 	}
-	// }
+// 	short data[3][10];
+// 	for(int i = 0; i < 3; i++)
+// 		for(int j = 0; j < 10; j++)
+// 			data[i][j] = 0;
 
-	short data[3][10];
-	for(int i = 0; i < 3; i++)
-		for(int j = 0; j < 10; j++)
-			data[i][j] = 0;
-	// print_data(data);
+// 	set_metadata(data, 0, 1,3);//cpu plays first, as X, max difficulty
+// 	register_move(data, 0, 40);//cpu's first move is in the center
+// 	register_move(data, 1, 39);//center left
+// 	register_move(data, 0, 31);//center
+// 	register_move(data, 1, 36);//top left
+// 	register_move(data, 0, 4);//center
+// 	// register_move(data, 1, 42);//complete center square
+// 	// register_move(data,0,58);//send back to center square for 81 moves
 
-	set_metadata(data, 0, 1,3);//cpu plays first, as X, max difficulty
-	register_move(data, 0, 40);//cpu's first move is in the center
-	register_move(data, 1, 39);//center left
-	register_move(data, 0, 31);//center
-	register_move(data, 1, 36);//top left
-	register_move(data, 0, 4);//center
-	// register_move(data, 1, 42);//complete center square
-	// register_move(data,0,58);//send back to center square for 81 moves
+// 	print_data(data);
 
-	// print_data(data);
-
-	// int counts[81];
-	// for(int i = 0; i < 81; i++){
-	// 	counts[i] = 0;
-	// }
-	// for(int i = 0; i < 6900000; i++){
-	// 	int m = select_rand_move(data);
-	// 	counts[m]++;
-	// }
-	// for(int i = 0; i < 81; i++){
-	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
-	// }
-	int m = cpu_move(data);
-	printf("cpu moved: %d\n", m);
-}
+// 	// int counts[81];
+// 	// for(int i = 0; i < 81; i++){
+// 	// 	counts[i] = 0;
+// 	// }
+// 	// for(int i = 0; i < 6900000; i++){
+// 	// 	int m = select_rand_move(data);
+// 	// 	counts[m]++;
+// 	// }
+// 	// for(int i = 0; i < 81; i++){
+// 	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
+// 	// }
+// 	// int m = cpu_move(data);
+// 	// printf("cpu moved: %d\n", m);
+// }
 
 /*
 static void further_testing(){

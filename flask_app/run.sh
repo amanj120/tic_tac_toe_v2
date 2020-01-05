@@ -1,8 +1,8 @@
 #!/bin/sh
-SO_F=tic.so
+SO_F=game_lib/tic.so
 GL_F=game_lib/game_engine.c
 PYC_F=app.pyc
-export FLASK_APP=app.py
+export FLASK_APP=main.py
 if [ $# -gt 0 ]; then
 	export FLASK_ENV=development
 else
