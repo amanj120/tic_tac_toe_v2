@@ -56,3 +56,46 @@ after altering setvalid:
 
 overall about a 80% increase in speed
 
+RUNNING ONLINE LITERALLY TAKES 4 TIMES AS LONG (20s vs 5s on Experft difficulty)
+
+new improvement on select_rand_move:
+select_rand_move: 38.36% of runtime 
+rand:5.55% of runtime
+register_move: 44.91% of runtime
+set_valid: 18.02% of runtime
+random_trial: still 99.96% of runtime
+
+at this point idk how to calculate speedup, but it is pretty big.
+
+new improvement on register_move: 
+select_rand_move: 43.74% of runtime 
+rand:6.33% of runtime
+register_move: 37.18% of runtime
+set_valid: 20.54% of runtime
+random_trial: still 99.96% of runtime
+
+new improvement on set_valid:
+select_rand_move: 44.71% of runtime 
+rand:6.47% of runtime
+register_move: 35.95% of runtime
+set_valid: 18.95% of runtime
+random_trial: still 99.96% of runtime
+
+through all the improvements, the overhead in random_trial has remained constant:
+
+it started off as 9.74% of runtime, and is currently 19.3% -> 1.98 times speedup just by optimizing the code alone.
+
+new improvement on c3x3 and cm (both preprocessor definitions): should affect overhead in random_trial, and a lil bit in register move (called twice in random trial, once in register move):
+select_rand_move: 51.04% of runtime 
+rand:7.38% of runtime
+register_move: 36.54% of runtime
+set_valid: 21.63% of runtime
+random_trial: still 99.95% of runtime
+-- HUGE improvement i guess ?? -> 12.37% overhead
+the only thing that remained constant between last time and this time is rand() -> 6.47% of runtime to 7.38% of runtime: (1.14 speedup)
+Brings our total to (1.14)*(1.98) = 2.25 times speedup just on profiling and optimizing wooo
+
+it's a shame rand() takes so long tho
+
+POTENTIAL OPTIMIZATION: shanging everything to unsigned short, or even better, uint16_t (unsigned int with 16 bits exactly)
+another potential optimization in select rand move: combine all 81 bits into two longs (boards 0,1,2,3,4,5,6 and boards 7,8), and then do the same select rand stuff without any of the for loop stuff (plus we don't have to calculate the number of bits twice since it's already part of the choosing random bit process). Note, this will be kinda weird, but will definietely be faster.

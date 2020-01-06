@@ -19,7 +19,7 @@
 	height: 8px;
 	background-color: white;
 }
-.x{animation: move_x_b 4s ease infinite;}
+.x{animation: move_x 4s ease infinite;}
 a{
 	text-decoration: none;
 	color: #FFFFFF;
@@ -79,14 +79,14 @@ body{
 #progress { 
     display: none;
 }
-@keyframes move_x_b {
-	0% {left:-20px;top:-20px;}
-	12.5% {left:0px;top:0px;}
-	25% {left:20px;top:-20px;}
-	37.5% {left:0px;top:0px;}
-	50% {left:20px;top:20px;}
-	62.5% {left:0px;top:0px;}
-	75% {left:-20px;top:20px;}
-	87.5% {left:0px;top:0px;}
-	100% {left:-20px;top:-20px;}
+@keyframes move_x {
+	0% {left:0px;top:0px;}
+	12.5% {left:-20px;top:-20px;}
+	25% {left:0px;top:0px;}
+	37.5% {left:20px;top:-20px;}
+	50% {left:0px;top:0px;}
+	62.5% {left:20px;top:20px;}
+	75% {left:0px;top:0px;}
+	87.5% {left:-20px;top:20px;}
+	100% {left:0px;top:0px;}
 }

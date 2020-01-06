@@ -1,49 +1,52 @@
 #include "game_engine.h"
-// #include <stdio.h>
+#include <stdio.h>
 // #include <omp.h>
 
 
 static int select_rand_move(short d[3][10]){
 	short count = 0;
-	short dt[9];
+	short dt[] = {0,0,0,0,0,0,0,0,0};
 	for(int i = 0; i < 9; i++){
 		short v = d[2][i] & 0x1FF;
-		short a = (v&0x155) + ((v>>1)&0x155);// v&101010101 + (v&010101010>>1);
-		short b = (a&0x133) + ((a>>2)&0x133);// a&100110011 + (a&011001100>>2);
-		short c = (b&0x10F) + ((b>>4)&0x10F);// b&100001111 + b&011110000>>4;
-		short e = (c>>8) + (c&0xFF);//&01111111 & c>>8;
-		dt[i] = e;
-		count += e;
+		if(v != 0){
+			short a = (v&0x155) + ((v>>1)&0x155);// v&101010101 + (v&010101010>>1);
+			short b = (a&0x133) + ((a>>2)&0x133);// a&100110011 + (a&011001100>>2);
+			short c = (b&0x10F) + ((b>>4)&0x10F);// b&100001111 + b&011110000>>4;
+			short e = (c>>8) + (c&0xFF);//&01111111 & c>>8;
+			dt[i] = e;
+			count += e;
+		}
 	}
 
 	if(count == 0)
 		return -1;
 
-	int m = rand()%count;
+	int r = rand()%count;
 	for(short i = 0; i < 9; i++){
 		short v = d[2][i];
-		if(v && m < dt[i]){
+		if(v && r < dt[i]){
 			short a = (v&0x155) + ((v>>1)&0x155);
 			short b = (a&0x133) + ((a>>2)&0x133);
 			short j,t,n;
-			if(v>>8 && (m==(dt[i]-1)))
+			if(v>>8 && (r==(dt[i]-1)))
 				return (i*9) + 8 ;//if it's the leftmost bit
 
 			j = 0;//check if its in bits 0-3 or 4-7
 			t = b & 0xF;
-			n = (m>=t);
-			m -= (n*t);
-
-			j = (n*4);//check if it's in bits 0-1/4-5 or 2-3/6-7
+			
+			n = (r>=t);
+			r -= (n*t);
+			j = (n<<2);//check if it's in bits 0-1/4-5 or 2-3/6-7 (same thing as multiplying by 4 btw)
 			t = (a>>j)&3;
-			n = (m>=t);
-			m -= (n*t);
-
-			j += (n*2);//figure out which bit its in
+			
+			n = (r>=t);
+			r -= (n*t);
+			j += (n<<1);//figure out which bit its in (same thing as multiplying by 2)
 			t = (v>>j) & 1;
-			return (i*9) + (j + (m>=t));
+			
+			return (i*9) + (j + (r>=t));
 		}
-		m -= dt[i];
+		r -= dt[i];
 	}
 }
 
@@ -53,7 +56,6 @@ static int random_trial(const short data[3][10]){
 	memcpy(d, data, size_of_data);
 	int lastMove = last_move;
 	short p = (d[1][lastMove/9] & 1<<(lastMove%9));
-	short m[] = {0700, 070, 07, 0444, 0222, 0111, 0421, 0124}; 
 	while(1){			
 		if(c3x3(d[0][9])){
 			return 0;
@@ -72,27 +74,29 @@ static int random_trial(const short data[3][10]){
 
 static void set_valid(short dd[3][10]){
 	int lastSquare = (dd[2][9]&0xFF)%9;
-	for(short i = 0; i < 9; i++){
-		dd[2][i] = 0;
-	}
 	if((dd[0][9] & 1<<lastSquare) || (dd[1][9] & 1<<lastSquare)){
 		//the last move sent someone to a square that's already filled
+		short a = (dd[0][9]|dd[1][9]);//big squares already filled
 		for(short i = 0; i < 9; i++){
-			short a = (dd[0][9]|dd[1][9]);//big squares already filled
 			if(!(a&(1<<i)))
 				dd[2][i] = (~((~0777)|dd[1][i]|dd[0][i]));
+			else
+				dd[2][i] = 0;
 		}
 	} else {
+		for(short i = 0; i < 9; i++)
+			dd[2][i] = 0;
 		dd[2][lastSquare] = ~((~0777)|dd[1][lastSquare]|dd[0][lastSquare]);
 	}
 	return;
 }
 
 void register_move(short d[3][10], int p, int move){
-	short m[] = {0700, 070, 07, 0444, 0222, 0111, 0421, 0124}; 
-	d[p][move/9] = (d[p][move/9]|1<<(move%9)); //move a piece
-	if(c3x3(d[p][move/9]))//if it completed a mini board
-		d[p][9] = (d[p][9]|1<<(move/9));
+	short lb = move/9;
+	d[p][lb] = (d[p][lb]|1<<(move%9)); //move a piece
+	short lb2 = d[p][lb];
+	if(c3x3(lb2))//if it completed a mini board
+		d[p][9] = (d[p][9]|1<<(lb));
 	d[2][9] = set_last_move(move);
 	set_valid(d);
 	return;
@@ -116,7 +120,6 @@ static int nrand(const short data[3][10], short p, long n){
 }
 
 int game_over(short d[3][10]){
-	short m[] = {0700, 070, 07, 0444, 0222, 0111, 0421, 0124}; 
 	if(c3x3(d[0][9]))
 		return 0;
 	else if (c3x3(d[1][9]))
@@ -151,7 +154,6 @@ static double traverse_game_tree(short data[3][10], int move, int player, int n,
 	short d[3][10];
 	memcpy(d,data,size_of_data);
 	register_move(d, player, move); //note, registering a move sets valid already
-
 	int g = game_over(d);
 	if(g == cpu_player_number)
 		return 1;
@@ -177,13 +179,13 @@ static double traverse_game_tree(short data[3][10], int move, int player, int n,
 	if(next_n < min_leaf){//we have reached the end of our traversal 
 		int num_wins = nrand(d,cpu_player_number,n);//return the number of times the cpu wins
 		double ret = (double)(((double)num_wins)/n);
-		// debug printf("in the end, nrand gave us %ld when running %ld trials, with a %f percentage\n", num_wins, n, ret);
+		// debug printf("in the end, nrand gave us %d when running %d trials, with a %f percentage\n", num_wins, n, ret);
 		return ret;
 	} else if(player == cpu_player_number){ //now its the users turn to play, and we want to minimize
 		double ret = 1.0;
 		for(int i = 0; i < count; i++){
 			double v = traverse_game_tree(d, valids[i], !player, next_n, lev+1);
-			//debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,lev);
+			// debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,lev);
 			if(v < ret)
 				ret = v;
 			if(v < 0.0001)
@@ -194,7 +196,7 @@ static double traverse_game_tree(short data[3][10], int move, int player, int n,
 		double ret = 0.0;
 		for(int i = 0; i < count; i++){
 			double v = traverse_game_tree(d, valids[i], !player, next_n, lev+1);
-			//debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,lev);
+			// debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,lev);
 			if(v > ret)
 				ret = v;
 			if(v > 0.9999)
@@ -227,10 +229,10 @@ int cpu_move(short d[3][10]){ //same as l0
 
 	//old code prior to performance tuning
 	double max = -1;
-	int move;
+	int move = 0;
 	for(int i = 0; i < count; i++){
 		double v = traverse_game_tree(d, valids[i], cpu_player_number ,l1_nt, 2);
-		//debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,1);
+		// debug printf("move: %d gave us a value of %f in level %d\n", valids[i], v,1);
 		if(v > max){
 			move = valids[i];
 			max = v;
@@ -340,41 +342,42 @@ void to_string(short d[3][10], char out[]){
 	}
 }
 
-// static void print_data(short d[3][10]){char c[b_len]; to_string(d,c);printf("%s\n", c);}
+static void print_data(short d[3][10]){char c[b_len]; to_string(d,c);printf("%s\n", c);}
 
-// int main(){
-// 	seed();
+int main(){
+	seed();
 
-// 	short data[3][10];
-// 	for(int i = 0; i < 3; i++)
-// 		for(int j = 0; j < 10; j++)
-// 			data[i][j] = 0;
+	short data[3][10];
+	for(int i = 0; i < 3; i++)
+		for(int j = 0; j < 10; j++)
+			data[i][j] = 0;
 
-// 	set_metadata(data, 0, 1,3);//cpu plays first, as X, max difficulty
-// 	register_move(data, 0, 40);//cpu's first move is in the center
-// 	register_move(data, 1, 39);//center left
-// 	register_move(data, 0, 31);//center
-// 	register_move(data, 1, 36);//top left
-// 	register_move(data, 0, 4);//center
-// 	// register_move(data, 1, 42);//complete center square
-// 	// register_move(data,0,58);//send back to center square for 81 moves
+	set_metadata(data, 0, 1,3);//cpu plays first, as X, max difficulty
+	register_move(data, 0, 40);//cpu's first move is in the center
+	register_move(data, 1, 39);//center left
+	register_move(data, 0, 31);//center
+	register_move(data, 1, 36);//top left
+	register_move(data, 0, 4);//center
+	// register_move(data, 1, 42);//complete center square
+	// register_move(data,0,58);//send back to center square for 81 moves
 
-// 	print_data(data);
+	print_data(data);
 
-// 	// int counts[81];
-// 	// for(int i = 0; i < 81; i++){
-// 	// 	counts[i] = 0;
-// 	// }
-// 	// for(int i = 0; i < 6900000; i++){
-// 	// 	int m = select_rand_move(data);
-// 	// 	counts[m]++;
-// 	// }
-// 	// for(int i = 0; i < 81; i++){
-// 	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
-// 	// }
-// 	// int m = cpu_move(data);
-// 	// printf("cpu moved: %d\n", m);
-// }
+	// int counts[81];
+	// for(int i = 0; i < 81; i++){
+	// 	counts[i] = 0;
+	// }
+	// for(int i = 0; i < 6900000; i++){
+	// 	int m = select_rand_move(data);
+	// 	counts[m]++;
+	// }
+	// for(int i = 0; i < 81; i++){
+	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
+	// }
+	// printf("before cpu_move\n");
+	int mm = cpu_move(data);
+	printf("cpu moved: %d\n", mm);
+}
 
 /*
 static void further_testing(){
