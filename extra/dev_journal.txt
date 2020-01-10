@@ -99,3 +99,11 @@ it's a shame rand() takes so long tho
 
 POTENTIAL OPTIMIZATION: shanging everything to unsigned short, or even better, uint16_t (unsigned int with 16 bits exactly)
 another potential optimization in select rand move: combine all 81 bits into two longs (boards 0,1,2,3,4,5,6 and boards 7,8), and then do the same select rand stuff without any of the for loop stuff (plus we don't have to calculate the number of bits twice since it's already part of the choosing random bit process). Note, this will be kinda weird, but will definietely be faster.
+
+use this to create an __init__.py file
+
+https://stackoverflow.com/questions/3777301/how-to-call-a-shell-script-from-python-code
+
+this will let you call terminal commands from a python file.
+
+Updates that need to be made for mobile: click on a space to register THAT move, highlight the last move played in a different color.
