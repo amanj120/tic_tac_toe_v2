@@ -170,14 +170,16 @@ def get_mobile_html(board_str, last, data):
 		{}
 		</form>
 		<div id="progress">
-			CPU moving...
+			CPU moving
 			<br>
-			<div class="loader x"></div>
+			<div class="loader a"></div>
+			<div class="loader b"></div>
+			<div class="loader c"></div>
 		</div>
 		</body>
 		</html>'''
 	# new_data = 
-	ddd = board_str.replace(' ', '&nbsp').replace('\n', '<br>')
+	ddd = board_str.replace(' ', '&nbsp').replace('\n', '<br>')	
 	for i in range(9):
 		for j in range(9):
 			s = chr(i+65) + str(j)

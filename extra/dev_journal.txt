@@ -111,4 +111,4 @@ Updates that need to be made for mobile: click on a space to register THAT move,
 January 19th notes
 
 More mobiel friendly! now you can just click the place you want to play a piece. The next step is to make everything one character wide, and color code the last place the CPU played. Also maybe make the loading icon a little less stupid lol"
-
+ok changed the loader, gonna deploy this new version now. i haven't done color coding yet, i'll do that once I also update the whole screen to be narrower (by making the possible moves a single character instead of two i.e. C2 or A6).

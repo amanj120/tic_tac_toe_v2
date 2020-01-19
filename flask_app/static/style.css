@@ -91,6 +91,19 @@ body{
 #progress { 
     display: none;
 }
+.a{animation: pulsea 1.5s ease infinite;}
+.b{animation: pulseb 1.5s ease infinite;}
+.c{animation: pulsec 1.5s ease infinite;}
+@keyframes pulsea {
+	25%{transform: scale(1.67);}
+}
+@keyframes pulseb {
+	50%{transform: scale(1.67);}
+}
+@keyframes pulsec {
+	75%{transform: scale(1.67);}
+}
+
 @keyframes move_x {
 	0% {left:0px;top:0px;}
 	12.5% {left:-20px;top:-20px;}
