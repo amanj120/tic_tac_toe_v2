@@ -107,3 +107,8 @@ https://stackoverflow.com/questions/3777301/how-to-call-a-shell-script-from-pyth
 this will let you call terminal commands from a python file.
 
 Updates that need to be made for mobile: click on a space to register THAT move, highlight the last move played in a different color.
+
+January 19th notes
+
+More mobiel friendly! now you can just click the place you want to play a piece. The next step is to make everything one character wide, and color code the last place the CPU played. Also maybe make the loading icon a little less stupid lol"
+
