@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, render_template_string
 from ctypes import *
 from os import path
 
@@ -15,12 +15,12 @@ num_trials = 200000 #directly proportional to how well the CPU plays, and invers
 def data_to_str(d):
 	s = ""
 	for i in range(30):
-		s += (str(d[i//10][i%10]) + ",")
+		s += (str(d[i//10][i%10]) + ".")
 	return s[:-1]
 
 def str_to_data(s):
 	d = data()
-	n = s.split(",")
+	n = s.split(".")
 	for i in range(30):
 		d[i//10][i%10] = int(n[i])
 	return d;
@@ -90,14 +90,21 @@ def metadata():
 	initialize(d)
 	board = to_string(d)
 	if(((d[2][9] & 0x8000) >> 15) == 0):
-		return render_template("game.html", last="CPU Played E4", input=board, data=data_to_str(d))
+		#return render_template("game.html", last="CPU Played E4", input=board, data=data_to_str(d))
+		return get_mobile_html(board, "CPU Played E4", data_to_str(d))
 	else:
-		return render_template("game.html", last="It is your turn to play", input=board, data=data_to_str(d))
+		#return render_template("game.html", last="It is your turn to play", input=board, data=data_to_str(d))
+		return get_mobile_html(board, "It is your turn to play", data_to_str(d))
 
 @app.route('/turn', methods=['POST'])
 def turn():
-	g = request.form['move']
-	o = request.form['passed']
+	p = request.form['pass']
+	arr = p.split('/')
+	g = arr[1]
+	o = arr[0]
+	print("p: {}, arr {}".format(p, arr))
+	# g = request.form['move']
+	# o = request.form['passed']
 	d = str_to_data(o)
 	last_string = "'{}' is not a valid move".format((g[0].upper()) + g[1])
 	m = (((ord(g[0])&95)-65)*9)+(int(g[1]))
@@ -130,7 +137,53 @@ def turn():
 		l = chr(65+(last_move//9)) + str(last_move%9)
 		last_string = "CPU played {}".format(l)
 	board = to_string(d)
-	return render_template("game.html", last=last_string, input=board, data=data_to_str(d))
+	return render_template_string(get_mobile_html(board, last_string, data_to_str(d)))
+	#render_template("game.html", last=last_string, input=board, data=data_to_str(d))
+	# return render_template("game.html", something=dddd) #last=last_string, input=board, data=data_to_str(d))
+
+
+@app.route('/peepee/<a>/<b>')
+def lmao(a,b):
+	return a + "lll" + b
+
+def get_mobile_html(board_str, last, data):
+	thing = '''<!DOCTYPE html>
+		<html>
+		<head>
+			<title>Ultimate Tic Tac Toe</title>
+			<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:300&display=swap" rel="stylesheet">
+			<link rel="stylesheet" href="/static/style.css">
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+			<script>
+	            $(document).ready(function() {{
+	                $('#form').submit(function() {{
+	                    $('#progress').show();
+	                }});
+	            }});
+	        </script>
+		</head>
+		<body class="common">
+		<a href="/">Home</a>	
+		<br>
+		<h1 class="common">{}</h1>
+		<form id="form" action="/turn" method="post">
+		{}
+		</form>
+		<div id="progress">
+			CPU moving...
+			<br>
+			<div class="loader x"></div>
+		</div>
+		</body>
+		</html>'''
+	# new_data = 
+	ddd = board_str.replace(' ', '&nbsp').replace('\n', '<br>')
+	for i in range(9):
+		for j in range(9):
+			s = chr(i+65) + str(j)
+			s = s.strip()
+			ddd = ddd.replace(s, '<button type="submit" style="padding:0px;" class="common" name="pass" value="{}/{}">{}</button>'.format(data,s,s))
+	return thing.format(last, ddd)
 
 if __name__ == '__main__':
 	app.run(debug=True)

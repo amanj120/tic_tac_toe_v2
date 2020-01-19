@@ -72,6 +72,18 @@ input[type="radio"] + label:hover {
 input[type="radio"]:checked + label {
 font-weight: bold;
 }
+button{
+	outline:none !important;
+	background-color: #000000;
+	padding: 0px;
+	border: 0px;
+	margin: 0px;
+
+}
+button[type="submit"]:hover,focus{
+	font-weight: bold;
+	outline:none !important;
+}
 body{
 	background-color: #000000;
 	align-content: center;
