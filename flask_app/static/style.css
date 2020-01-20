@@ -1,7 +1,7 @@
 .common{
 	color: white;
 	font-weight: normal;
-	font-family: 'Source Code Pro', monospace;
+	font-family: monospace;
 	font-size: 24pt;
 	text-align: center;
 	border:none;
@@ -31,7 +31,7 @@ a:hover,focus{
 p{
 	color: white;
 	font-weight: normal;
-	font-family: 'Source Code Pro', monospace;
+	font-family: monospace;
 	font-size: 16pt;
 	text-align: left;
 	border:none;
@@ -70,19 +70,21 @@ input[type="radio"] + label:hover {
 }
 
 input[type="radio"]:checked + label {
-font-weight: bold;
+	font-weight: bold;
 }
 button{
 	outline:none !important;
 	background-color: #000000;
+	color: red;
 	padding: 0px;
 	border: 0px;
 	margin: 0px;
 
 }
 button[type="submit"]:hover,focus{
-	font-weight: bold;
 	outline:none !important;
+	color: white;
+	font-weight: bold;
 }
 body{
 	background-color: #000000;

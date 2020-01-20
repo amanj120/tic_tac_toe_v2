@@ -9,9 +9,14 @@ app = Flask(__name__)#, template_folder=frontend, static_folder=frontend)
 
 data = (c_short*10)*3 	#this is a type, all instances of data will be of this type
 base = c_char*361 	#the type of the returned string
-min_num_leaf = 150 #vary this between 150 and 500, increase as num_trials increases
-num_trials = 200000 #directly proportional to how well the CPU plays, and inversely proportional to the time it takes the CPU to play
+base_32 = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v']
 #observations: anything more than 1,600,000 ish is overkill, less than 200,000 is also not great
+def to_32(i):
+	return base_32[i & 0x3e0] + base_32[i & 0x1f] 
+
+def to_int(b_32):
+	return 32*(base_32.index(b_32[0])) + (base_32.index(b_32[1]))
+
 def data_to_str(d):
 	s = ""
 	for i in range(30):
@@ -41,7 +46,7 @@ def register_usr_move(d, m):
 	func.register_move(byref(d),usr_no,m)
 
 def register_cpu_move(d):
-	m = func.cpu_move(byref(d), num_trials)
+	m = func.cpu_move(byref(d))
 	func.register_move(byref(d), cpu_no(d), m)
 
 def initialize(d):
@@ -96,18 +101,19 @@ def metadata():
 		#return render_template("game.html", last="It is your turn to play", input=board, data=data_to_str(d))
 		return get_mobile_html(board, "It is your turn to play", data_to_str(d))
 
-@app.route('/turn', methods=['POST'])
-def turn():
-	p = request.form['pass']
-	arr = p.split('/')
-	g = arr[1]
-	o = arr[0]
-	print("p: {}, arr {}".format(p, arr))
+@app.route('/turn/<o>/<p>')
+def turn(o,p):
+	# p = request.form['pass']
+	# arr = p.split('/')
+	# g = arr[1]
+	# o = arr[0]
+	# print("p: {}, arr {}".format(p, arr))
 	# g = request.form['move']
 	# o = request.form['passed']
 	d = str_to_data(o)
-	last_string = "'{}' is not a valid move".format((g[0].upper()) + g[1])
-	m = (((ord(g[0])&95)-65)*9)+(int(g[1]))
+	last_string = "" #"'{}' is not a valid move".format((g[0].upper()) + g[1])
+	# m = (((ord(g[0])&95)-65)*9)+(int(g[1]))
+	m = int(p)
 	if check_valid(d, m):
 		usr_no = 1 - cpu_no(d)
 		register_usr_move(d,m)
@@ -141,22 +147,16 @@ def turn():
 	#render_template("game.html", last=last_string, input=board, data=data_to_str(d))
 	# return render_template("game.html", something=dddd) #last=last_string, input=board, data=data_to_str(d))
 
-
-@app.route('/peepee/<a>/<b>')
-def lmao(a,b):
-	return a + "lll" + b
-
 def get_mobile_html(board_str, last, data):
 	thing = '''<!DOCTYPE html>
 		<html>
 		<head>
 			<title>Ultimate Tic Tac Toe</title>
-			<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:300&display=swap" rel="stylesheet">
 			<link rel="stylesheet" href="/static/style.css">
 			<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 			<script>
 	            $(document).ready(function() {{
-	                $('#form').submit(function() {{
+	                $('a[class="temp_class"]').click(function() {{
 	                    $('#progress').show();
 	                }});
 	            }});
@@ -166,9 +166,7 @@ def get_mobile_html(board_str, last, data):
 		<a href="/">Home</a>	
 		<br>
 		<h1 class="common">{}</h1>
-		<form id="form" action="/turn" method="post">
 		{}
-		</form>
 		<div id="progress">
 			CPU moving
 			<br>
@@ -184,7 +182,10 @@ def get_mobile_html(board_str, last, data):
 		for j in range(9):
 			s = chr(i+65) + str(j)
 			s = s.strip()
-			ddd = ddd.replace(s, '<button type="submit" style="padding:0px;" class="common" name="pass" value="{}/{}">{}</button>'.format(data,s,s))
+			num = str(i*9 + j);
+			#do this if you want to do a form (with post) instead of a hyperlink (with get)
+			#ddd = ddd.replace(s, '<button type="submit" style="padding:0px;" class="common" name="pass" value="{}/{}">{}</button>'.format(data,s,s))
+			ddd = ddd.replace(s, '<a class="temp_class" href="/turn/{}/{}">{}</a>'.format(data, num, s))
 	return thing.format(last, ddd)
 
 if __name__ == '__main__':
