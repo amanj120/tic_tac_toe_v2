@@ -1,5 +1,4 @@
 .common{
-	color: white;
 	font-weight: normal;
 	font-family: monospace;
 	font-size: 24pt;
@@ -11,21 +10,12 @@
 .hidden{
 	display: none;
 }
-.loader{
-	display: inline-block;
-	position: relative;
-	border-radius: 50%;
-	width: 8px;
-	height: 8px;
-	background-color: white;
-}
-.x{animation: move_x 4s ease infinite;}
 a{
 	text-decoration: none;
-	color: #FFFFFF;
+	color: #888888;
 }
 a:hover,focus{
-	font-weight: bold;
+	color: #FFFFFF;
 	outline:none !important;
 }
 p{
@@ -36,16 +26,42 @@ p{
 	text-align: left;
 	border:none;
 }
-h1{white-space: pre;}
+h1{
+	white-space: pre;
+	font-weight: normal;
+	color: white;
+}
 input{
 	background-color: inherit;
+	color: #888888;
 	width: auto;
 }
 input:focus{
 	outline:none !important; 
 }
 input[type="submit"]:hover,focus,checked{
-	font-weight: bold;
+	color: white;
+}
+body{
+	background-color: #000000;
+	align-content: center;
+	color: white;
+}
+
+/* difficulty level work */
+input[type="radio"] {
+  display: none;
+}
+input[type="radio"] + label {
+  display: inline-block;
+  text-align: center;
+  color: #888;
+}
+input[type="radio"] + label:hover {
+	color : white;
+}
+input[type="radio"]:checked + label {
+	color : white;
 }
 table{
 	margin-left: auto;
@@ -55,24 +71,27 @@ td{
 	padding-right:auto;
 	padding-left: auto;
 	display:inline-table;
-}
-input[type="radio"] {
-  display: none;
+	color: white;
 }
 
-input[type="radio"] + label {
-  display: inline-block;
-  text-align: center;
+/* loading icon work */
+#progress {display: none;}
+.loader{
+	display: inline-block;
+	position: relative;
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+	background-color: white;
 }
+.a{animation: pulsea 1.5s ease infinite;}
+.b{animation: pulseb 1.5s ease infinite;}
+.c{animation: pulsec 1.5s ease infinite;}
+@keyframes pulsea {25%{transform: scale(1.67);}}
+@keyframes pulseb {50%{transform: scale(1.67);}}
+@keyframes pulsec {75%{transform: scale(1.67);}}
 
-input[type="radio"] + label:hover {
-  font-weight: bold;
-}
-
-input[type="radio"]:checked + label {
-	font-weight: bold;
-}
-button{
+/*button{
 	outline:none !important;
 	background-color: #000000;
 	color: red;
@@ -85,27 +104,9 @@ button[type="submit"]:hover,focus{
 	outline:none !important;
 	color: white;
 	font-weight: bold;
-}
-body{
-	background-color: #000000;
-	align-content: center;
-}
-#progress { 
-    display: none;
-}
-.a{animation: pulsea 1.5s ease infinite;}
-.b{animation: pulseb 1.5s ease infinite;}
-.c{animation: pulsec 1.5s ease infinite;}
-@keyframes pulsea {
-	25%{transform: scale(1.67);}
-}
-@keyframes pulseb {
-	50%{transform: scale(1.67);}
-}
-@keyframes pulsec {
-	75%{transform: scale(1.67);}
-}
+}*/
 
+/*.x{animation: move_x 4s ease infinite;}
 @keyframes move_x {
 	0% {left:0px;top:0px;}
 	12.5% {left:-20px;top:-20px;}
@@ -116,4 +117,4 @@ body{
 	75% {left:0px;top:0px;}
 	87.5% {left:-20px;top:20px;}
 	100% {left:0px;top:0px;}
-}
+}*/
