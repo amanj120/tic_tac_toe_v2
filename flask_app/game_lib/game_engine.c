@@ -1,5 +1,5 @@
 #include "game_engine.h"
-#include <stdio.h>
+// #include <stdio.h>
 // #include <omp.h>
 
 
@@ -132,9 +132,9 @@ int game_over(short d[3][10]){
 	}
 }
 
-int check_valid(short d[3][10], int move){
-	return (d[2][move/9] & (1<<(move%9)));
-}
+// int check_valid(short d[3][10], int move){
+// 	return (d[2][move/9] & (1<<(move%9)));
+// }
 
 void set_metadata(short d[3][10], int cpu_p_no, int cpu_x, int difficulty){
 	int n = d[2][9];
@@ -279,105 +279,109 @@ void seed(){ //can be called multiple times
 	srand(seed);
 }
 
-void to_string(short d[3][10], char out[]){
-	strcpy(out, board);
-	for(int i = 0; i < 9; i++){
-		for(int j = 0; j < 9; j++){
-			int p = i*9 + j;
-			int pos = board_pos[p];
-			/* d[0] should be:
-			cpu x, cpu 0 -> X (1,0) = X
-			cpu o, cpu 0 -> O (0,0) = O
-			cpu x, cpu 1 -> O (1,1) = O
-			cpu o, cpu 1 -> X (0,1) = X
-			*/
-			if(cpu_is_x != cpu_player_number){
-				if(d[0][i] & 1<<j){
-					out[pos] = '>';
-					out[pos+1] = '<';
-				} else if (d[1][i] & 1<<j){
-					out[pos] = '<';
-					out[pos+1] = '>';
-				} else if (!(d[2][i] & 1<<j)){
-					out[pos] = ' ';
-					out[pos+1] = ' ';
-				} else {
-					continue;
-				}
-			} else {
-				if(d[0][i] & 1<<j){
-					out[pos] = '<';
-					out[pos+1] = '>';
-				} else if (d[1][i] & 1<<j){
-					out[pos] = '>';
-					out[pos+1] = '<';
-				} else if (!(d[2][i] & 1<<j)){
-					out[pos] = ' ';
-					out[pos+1] = ' ';
-				} else {
-					continue;
-				}
-			}
-		}
-	}
-	for(int j = 0; j < 9; j++){
-		int pos = board_pos[81 + j];
-		if(cpu_is_x != cpu_player_number){
-			if(d[0][9] & 1<<j){
-				out[pos] = 'X';
-			} else if (d[1][9] & 1<<j){
-				out[pos] = 'O';
-			} else {
-				continue;
-			}
-		} else {
-			if(d[0][9] & 1<<j){
-				out[pos] = 'O';
-			} else if (d[1][9] & 1<<j){
-				out[pos] = 'X';
-			} else {
-				continue;
-			}
-		}
-	}
-}
+// void to_string(short d[3][10], char out[]){
+// 	strcpy(out, board);
+// 	for(int i = 0; i < 9; i++){
+// 		for(int j = 0; j < 9; j++){
+// 			int p = i*9 + j;
+// 			int pos = board_pos[p];
+// 			/* d[0] should be:
+// 			cpu x, cpu 0 -> X (1,0) = X
+// 			cpu o, cpu 0 -> O (0,0) = O
+// 			cpu x, cpu 1 -> O (1,1) = O
+// 			cpu o, cpu 1 -> X (0,1) = X
+// 			*/
+// 			if(cpu_is_x != cpu_player_number){
+// 				if(d[0][i] & 1<<j){
+// 					out[pos] = '>';
+// 					out[pos+1] = '<';
+// 				} else if (d[1][i] & 1<<j){
+// 					out[pos] = '<';
+// 					out[pos+1] = '>';
+// 				} else if (!(d[2][i] & 1<<j)){
+// 					out[pos] = ' ';
+// 					out[pos+1] = ' ';
+// 				} else {
+// 					continue;
+// 				}
+// 			} else {
+// 				if(d[0][i] & 1<<j){
+// 					out[pos] = '<';
+// 					out[pos+1] = '>';
+// 				} else if (d[1][i] & 1<<j){
+// 					out[pos] = '>';
+// 					out[pos+1] = '<';
+// 				} else if (!(d[2][i] & 1<<j)){
+// 					out[pos] = ' ';
+// 					out[pos+1] = ' ';
+// 				} else {
+// 					continue;
+// 				}
+// 			}
+// 		}
+// 	}
+// 	for(int j = 0; j < 9; j++){
+// 		int pos = board_pos[81 + j];
+// 		if(cpu_is_x != cpu_player_number){
+// 			if(d[0][9] & 1<<j){
+// 				out[pos] = 'X';
+// 			} else if (d[1][9] & 1<<j){
+// 				out[pos] = 'O';
+// 			} else {
+// 				continue;
+// 			}
+// 		} else {
+// 			if(d[0][9] & 1<<j){
+// 				out[pos] = 'O';
+// 			} else if (d[1][9] & 1<<j){
+// 				out[pos] = 'X';
+// 			} else {
+// 				continue;
+// 			}
+// 		}
+// 	}
+// }
 
-static void print_data(short d[3][10]){char c[b_len]; to_string(d,c);printf("%s\n", c);}
+// static void print_data(short d[3][10]){
+// 	char c[b_len]; t
+// 	o_string(d,c);
+// 	printf("%s\n", c);
+// }
 
-int main(){
-	seed();
+// int main(){
+// 	seed();
 
-	short data[3][10];
-	for(int i = 0; i < 3; i++)
-		for(int j = 0; j < 10; j++)
-			data[i][j] = 0;
+// 	short data[3][10];
+// 	for(int i = 0; i < 3; i++)
+// 		for(int j = 0; j < 10; j++)
+// 			data[i][j] = 0;
 
-	set_metadata(data, 0, 1,3);//cpu plays first, as X, max difficulty
-	register_move(data, 0, 40);//cpu's first move is in the center
-	register_move(data, 1, 39);//center left
-	register_move(data, 0, 31);//center
-	register_move(data, 1, 36);//top left
-	register_move(data, 0, 4);//center
-	// register_move(data, 1, 42);//complete center square
-	// register_move(data,0,58);//send back to center square for 81 moves
+// 	set_metadata(data, 0, 1,3);//cpu plays first, as X, max difficulty
+// 	register_move(data, 0, 40);//cpu's first move is in the center
+// 	register_move(data, 1, 39);//center left
+// 	register_move(data, 0, 31);//center
+// 	register_move(data, 1, 36);//top left
+// 	register_move(data, 0, 4);//center
+// 	// register_move(data, 1, 42);//complete center square
+// 	// register_move(data,0,58);//send back to center square for 81 moves
 
-	print_data(data);
+// 	print_data(data);
 
-	// int counts[81];
-	// for(int i = 0; i < 81; i++){
-	// 	counts[i] = 0;
-	// }
-	// for(int i = 0; i < 6900000; i++){
-	// 	int m = select_rand_move(data);
-	// 	counts[m]++;
-	// }
-	// for(int i = 0; i < 81; i++){
-	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
-	// }
-	// printf("before cpu_move\n");
-	int mm = cpu_move(data);
-	printf("cpu moved: %d\n", mm);
-}
+// 	// int counts[81];
+// 	// for(int i = 0; i < 81; i++){
+// 	// 	counts[i] = 0;
+// 	// }
+// 	// for(int i = 0; i < 6900000; i++){
+// 	// 	int m = select_rand_move(data);
+// 	// 	counts[m]++;
+// 	// }
+// 	// for(int i = 0; i < 81; i++){
+// 	// 	printf("counts[%d]: %f\n",i,(counts[i]/100000.0));
+// 	// }
+// 	// printf("before cpu_move\n");
+// 	int mm = cpu_move(data);
+// 	printf("cpu moved: %d\n", mm);
+// }
 
 /*
 static void further_testing(){

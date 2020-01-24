@@ -33,7 +33,7 @@ short board_pos[] = {0,3,6,31,34,37,62,65,68,11,14,17,42,45,48,73,76,79,22,25,28
 
 //arbitrarily chosen for now, fix later (every 100,000 is about 1 second on my machine)
 static const int n_difficulty[] = {50000,100000,200000,400000}; //ideally there's more but 
-static const int min_leaf_difficulty[] = {150,225,300,375};
+static const int min_leaf_difficulty[] = {150,150,150,150};
 
 static double traverse_game_tree(short data[3][10], int move, int player, int n, int lev);
 static void set_valid(short dd[3][10]);

@@ -6,31 +6,26 @@
 		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 		<script>
-            $(document).ready(function() {
-                $('#form').submit(function() {
-                    $('#progress').show();
-                    $('#form').hide();
-                });
-            });
-        </script>
+	            $(document).ready(function() {
+	                $('a[class="tempclass"]').click(function() {
+	                    $('#progress').show();
+	                });
+	            });
+	        </script>
 	</head>
 	<body>
 		<div class="common">
 			<a href="/">Home</a>	
 			<br>
-			
-			<h1 class="common">{{last}}</h1>
-			<h1 class="common">{{input}}</h1>
-			<form id="form" action="{{ url_for('turn') }}" method="post">
-				"{{ something|safe }}"
-				<!-- Select a Move:<input class="common" type="text" name="move" pattern="[A-Ia-i][0-8]\b" size=2) value="" autocomplete="off" autofocus="autofocus" required="required"><br>
-				<input class="hidden" type="submit" name="passed" value={{data}}> -->
-			</form>
+			<br>
+			{{ board|safe }}
 			<div id="progress">
-				CPU moving...
-				<br>
-				<div class="loader x"></div>
-			</div>
+			CPU moving
+			<br>
+			<div class="loader a"></div>
+			<div class="loader b"></div>
+			<div class="loader c"></div>
+		</div>
 		</div>
 	</body>
 </html>

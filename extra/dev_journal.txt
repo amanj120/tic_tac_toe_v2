@@ -112,3 +112,12 @@ January 19th notes
 
 More mobiel friendly! now you can just click the place you want to play a piece. The next step is to make everything one character wide, and color code the last place the CPU played. Also maybe make the loading icon a little less stupid lol"
 ok changed the loader, gonna deploy this new version now. i haven't done color coding yet, i'll do that once I also update the whole screen to be narrower (by making the possible moves a single character instead of two i.e. C2 or A6).
+
+More updates (01/22):
+
+1) Firstly, lets get some semblance of a rules page going so then I can actually advertise this
+
+2) Also, no need to choose X vs choose O, just do first (X) or second(Y). On top of this, make the board printing thing a little more uniform (no need for two methods)
+
+3) make some sort of program that pits two bots against each other and collects data.
+
