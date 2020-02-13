@@ -9,9 +9,10 @@
 		<div class="common">
 			<a href="/rule">Rules</a>	
 			<br>
-			<h1 style="font-size: 24pt;">Welcome to Ultimate Tic Tac Toe</h1>
+			<h1>Ultimate Tic Tac Toe</h1>
+			<!-- <br> -->
 			<form action="{{ url_for('metadata') }}" class="common" method="post">
-				<h1 style="font-size: 24pt;">Choose your difficulty</h1>
+				<h1>-- Difficulty --</h1>
 				<table>
 					<tr>
 						<td>
@@ -28,14 +29,14 @@
 							<input type="radio" name="difficulty" id="radio3" value=2> 
 							<label for="radio3">Hard </label>
 						</td>
-						<td><p style="color:rgba(0,0,0,0)">----</p></td>
+						<!-- <td><p style="color:rgba(0,0,0,0)">----</p></td>
 						<td>
 							<input type="radio" name="difficulty" id="radio4" value=3> 
 							<label for="radio4">Expert </label>
-						</td>
+						</td> -->
 					</tr>
 				</table>
-				<br>
+				
 				<!-- <input type="submit" class="common" name="player" value="Play as X, go first"><br>
 				<input type="submit" class="common" name="player" value="Play as X, go second"><br>
 				<input type="submit" class="common" name="player" value="Play as O, go first"><br>

@@ -1,7 +1,7 @@
 .common{
 	font-weight: normal;
 	font-family: monospace;
-	font-size: 4.5vmin;
+	font-size: min(7vw,4.4vh);
 	/*font-size: 24px;*/
 	text-align: center;
 	border:none;
@@ -24,13 +24,16 @@ p{
 	color: white;
 	font-weight: normal;
 	font-family: monospace;
-	font-size: 16pt;
+	font-size: min(7vw,2.2vh);
 	text-align: left;
+	white-space: pre-line;
 	border:none;
 }
 h1{
 	white-space: pre;
 	font-weight: normal;
+	font-size: inherit;
+	overflow-wrap: normal;
 	color: white;
 }
 input{
